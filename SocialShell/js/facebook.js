@@ -27,7 +27,6 @@ function fb_feed_callback(response){
 }
 
 function fb_notification(text){
-
     FB.ui({
         method: 'apprequests',
         message: text
@@ -47,7 +46,7 @@ function fb_notification_callback(response){
 }
 
 function check_login(){
-    if(fid && loggedin) {
+    if(fb_unique_id && loggedin) {
         login_callback(response_global);
         return true;
     } else {
@@ -63,7 +62,7 @@ function fb_login(permissions){
             accessToken = response.authResponse.accessToken;
             if (response.status == 'connected') {
                 loggedin = true;
-                fid = response.authResponse.userID;
+                fb_unique_id = response.authResponse.userID;
                 access_token = response.authResponse.accessToken;
                 signed_request = response.authResponse.signedRequest;
             } else {

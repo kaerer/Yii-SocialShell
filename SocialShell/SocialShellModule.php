@@ -3,12 +3,7 @@
 /**
  * SocialShell Yii Module
  */
-
-Yii::Import('SocialShell.models.*');
-Yii::Import('SocialShell.components.*');
-Yii::Import('SocialShell.plugins.*');
-
-class SocialShellModule extends AbstractShell /*CWebModule*/{
+class SocialShellModule extends AbstractShell /* CWebModule */ {
 
     const VERSION = 0.1;
 
@@ -17,18 +12,24 @@ class SocialShellModule extends AbstractShell /*CWebModule*/{
      * @var FacebookShell
      */
     public $obj_facebook;
+
     /**
      * Twitter Api Object
      * @var TwitterShell
      */
     public $obj_twitter;
+
     /**
      * Instagram Api Object
      * @var InstagramShell
      */
     public $obj_instagram;
 
-    public function init() {}
+    public function init() {
+        Yii::Import('SocialShell.models.*');
+        Yii::Import('SocialShell.components.*');
+        Yii::Import('SocialShell.plugins.*');
+    }
 
     public function start_api() {
         if ($this->config->facebook_api) {
@@ -38,16 +39,12 @@ class SocialShellModule extends AbstractShell /*CWebModule*/{
         }
     }
 
-    public static function get_viewPath(){
-        return Yii::getPathOfAlias('SocialShell').'/views/social/';
+    public static function start_view($config) {
+        return Yii::app()->controller->renderPartial('SocialShell.views.social._header', array('social' => $config));
     }
 
-    public static function start_view($config){
-        return Yii::app()->controller->renderPartial('SocialShell.views.social._header', array('social' => $config));
-}
-
-    public static function end_view($config){
-        return Yii::app()->controller->renderPartial('SocialShell.views.social._header', array('social' => $config));
+    public static function end_view($config) {
+        return Yii::app()->controller->renderPartial('SocialShell.views.social._footer', array('social' => $config));
     }
 
 }

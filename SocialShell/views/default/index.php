@@ -4,8 +4,6 @@ $cs = Yii::app()->clientScript;
 /* @var $cs CClientScript */
 /* @var $social SocialConfig */
 
-$cs->registerCssFile('/css/fontface/MyriadWebPro.css');
-
 $cs->registerCoreScript('jquery');
 //$cs->registerCoreScript('jquery.ui');
 //$cs->registerScriptFile('/js/jquery.placeholder.min.js', CClientScript::POS_HEAD);

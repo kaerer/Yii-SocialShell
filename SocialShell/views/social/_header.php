@@ -5,6 +5,8 @@ $cs = Yii::app()->getClientScript();
 /* @var $social SocialConfig */
 /* @var $cs ClientScript */
 
+$appName = CHtml::encode($social->app_name);
+$controller = (YII_DEBUG ? 'debug.php' : '').Yii::app()->controller->getId();
 $js = <<<EOF
     var domainUrl   = {$social->domain_url};
 
@@ -14,7 +16,7 @@ $js = <<<EOF
 
     var mainUrl     = domainUrl;
 
-    var appName     = {CHtml::encode($social->app_name)};
+    var appName     = {$appName};
     var fb_unique_id= {$social->fb_unique_id};
     var req_perms   = {$social->fb_permissions};
     var shareLink   = {$social->share_url};
@@ -23,7 +25,7 @@ $js = <<<EOF
     //true; //false;
     var page_liked  = {($social->fb_page_liked ? 'true' : 'false')};
 
-    var controller  = {(YII_DEBUG ? 'debug.php' : '').Yii::app()->controller->getId()};
+    var controller  = {$controller};
     var ajax        = null;
     var dialog      = null;
     var process     = null;
