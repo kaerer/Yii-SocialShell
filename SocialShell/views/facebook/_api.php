@@ -25,7 +25,7 @@
 
             FB.getLoginStatus(function(response) {
                 response_global = response;
-                if(fid && response.status == 'connected') {
+                if(fb_unique_id && response.status == 'connected') {
                     loggedin = true;
                     fb_unique_id = response.authResponse.userID;
                     access_token = response.authResponse.accessToken;

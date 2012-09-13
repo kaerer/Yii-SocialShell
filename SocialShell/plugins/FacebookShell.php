@@ -7,12 +7,12 @@
  */
 class FacebookShell extends AbstractShell {
 
-    const VERSION = 0.1;
+    const VERSION = 0.3;
 
     private $obj;
     public $access_token;
-    
-    private $user_info;
+
+    public $user_info;
 
     public function &getApi() {
         return $this->obj;

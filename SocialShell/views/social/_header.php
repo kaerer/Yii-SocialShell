@@ -6,26 +6,28 @@ $cs = Yii::app()->getClientScript();
 /* @var $cs ClientScript */
 
 $appName = CHtml::encode($social->app_name);
-$controller = (YII_DEBUG ? 'debug.php' : '').Yii::app()->controller->getId();
-$js = <<<EOF
-    var domainUrl   = {$social->domain_url};
+$controller = (YII_DEBUG ? 'debug.php' : '').'/'.Yii::app()->controller->getId();
+$page_liked = $social->fb_page_liked ? 'true' : 'false';
 
-    var canvasUrl   = {$social->fb_canvas_url};
-    var pageUrl     = {$social->fb_page_url};
-    var tabUrl      = {$social->fb_tab_url};
+$js = <<<EOF
+    var domainUrl   = '{$social->domain_url}';
+
+    var canvasUrl   = '{$social->fb_canvas_url}';
+    var pageUrl     = '{$social->fb_page_url}';
+    var tabUrl      = '{$social->fb_tab_url}';
 
     var mainUrl     = domainUrl;
 
-    var appName     = {$appName};
-    var fb_unique_id= {$social->fb_unique_id};
-    var req_perms   = {$social->fb_permissions};
-    var shareLink   = {$social->share_url};
-    var shareImage  = {$social->share_image};
+    var appName     = '{$appName}';
+    var fb_unique_id= '{$social->fb_unique_id}';
+    var req_perms   = '{$social->fb_permissions}';
+    var shareLink   = '{$social->share_url}';
+    var shareImage  = '{$social->share_image}';
 
     //true; //false;
-    var page_liked  = {($social->fb_page_liked ? 'true' : 'false')};
+    var page_liked  = {$page_liked};
 
-    var controller  = {$controller};
+    var controller  = '{$controller}';
     var ajax        = null;
     var dialog      = null;
     var process     = null;
