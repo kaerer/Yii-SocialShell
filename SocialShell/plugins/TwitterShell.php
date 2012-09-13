@@ -1,18 +1,16 @@
 <?php
 
 /**
- * Description of Facebook Shell Plugin
+ * Description of Twitter Shell Plugin
  *
  * @author erce
  */
-class FacebookShell extends AbstractShell {
+class TwitterShell extends AbstractShell {
 
     const VERSION = 0.1;
 
     private $obj;
     public $access_token;
-    
-    private $user_info;
 
     public function &getApi() {
         return $this->obj;
@@ -23,8 +21,8 @@ class FacebookShell extends AbstractShell {
     }
 
     public function start_api() {
-        Yii::import('SocialShell.vendors.facebook.Facebook');
-        self::set_header();
+        Yii::import('SocialShell.vendors.twitter.tmhOAuth');
+        Yii::import('SocialShell.vendors.twitter.tmhUtilities');
 
         $this->obj = new Facebook(array(
                     'appId' => $this->config->fb_app_id,
@@ -33,20 +31,12 @@ class FacebookShell extends AbstractShell {
                     'cookie' => true,
                 ));
 
-        $this->get_accessToken();
-        $this->process_pageParams();
-//        $this->unique = $this->obj->getUser();
-
         return $this->getApi();
     }
 
-    public function get_uniqueID() {
-        if (!$this->config->fb_unique_id)
-            $this->config->fb_unique_id = $this->obj->getUser();
-        return $this->config->fb_unique_id;
-    }
+    public function get_unique() {}
 
-    public function get_loginUrl($permissions = false, $redirect_url = false) {
+    public function get_login_url($permissions = false, $redirect_url = false) {
         $params = array(
             'scope' => $permissions ? $permissions : $this->config->fb_permissions,
             'redirect_uri' => $redirect_url ? $redirect_url : $this->config->share_url
@@ -56,9 +46,9 @@ class FacebookShell extends AbstractShell {
         return $loginUrl;
     }
 
-    public function get_logoutUrl() {
-        $loginUrl = $this->obj->getLogoutUrl();
-        return $loginUrl;
+    public function redirect_login($permissions = false, $redirect_url = false) {
+        $target = $this->get_login_url($permissions, $redirect_url);
+        $this->redirect($target);
     }
 
     public function get_taken_permissions() {
@@ -123,8 +113,6 @@ class FacebookShell extends AbstractShell {
             $result = $this->obj->api('/'.($unique_id ? $unique_id : 'me').'/feed/', 'POST', $attachment);
             $this->addAction('share', $result, __METHOD__);
             return $result;
-        } catch (FacebookApiException $exc) {
-            $this->addError('share', $exc, __METHOD__);
         } catch (Exception $exc) {
             $this->addError('share', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
             return false;
@@ -139,15 +127,13 @@ class FacebookShell extends AbstractShell {
     }
 
     public function get_user_data($path = '', $unique_id = false) {
-        $results = $this->get_object('/'.($unique_id ? $unique_id : 'me').'/'.trim($path, '/'));
+        $results = $this->get_object(($unique_id ? '/'.$unique_id : '/me').'/'.trim($path, '/'));
         return $results;
     }
 
     public function get_object($object_path) {
         try {
             $results = $this->obj->api($object_path); //.'?access_token='.$this->access_token()
-        } catch (FacebookApiException $exc) {
-            $this->addError('data', $exc, __METHOD__);
         } catch (Exception $exc) {
             $this->addError('data', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
         }
@@ -179,8 +165,6 @@ class FacebookShell extends AbstractShell {
             if (!isset($object_params['accessToken']))
                 $object_params['accessToken'] = $this->get_accessToken();
             $results = $this->obj->api($object_path, $method, $object_params); //.'?access_token='.$this->access_token()
-        } catch (FacebookApiException $exc) {
-            $this->addError('data', $exc, __METHOD__);
         } catch (Exception $exc) {
             $this->addError('data', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
         }
@@ -196,20 +180,6 @@ class FacebookShell extends AbstractShell {
         } else {
             return false;
         }
-    }
-
-    /**
-     * Call fql query
-     * @param type $fql
-     * @return type
-     */
-    public function get_fql($fql) {
-        $params = array(
-            'method' => 'fql.query',
-            'query' => $fql,
-        );
-        $results = $this->get_object($params);
-        return $results;
     }
 
     public function upload_photo($album_params = array('name', 'description'), $photo_params = array('file', 'description')) {
@@ -237,8 +207,6 @@ class FacebookShell extends AbstractShell {
                     }
                 }
             }
-        } catch (FacebookApiException $exc) {
-            $this->addError('get_album', $exc, __METHOD__);
         } catch (Exception $exc) {
             $this->addError('get_album', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
         }
@@ -252,8 +220,6 @@ class FacebookShell extends AbstractShell {
                     $album_uid = $create_album['id'];
                     $this->addAction('create_album', $album_uid, __METHOD__);
                 }
-            } catch (FacebookApiException $exc) {
-                $this->addError('create_album', $exc, __METHOD__);
             } catch (Exception $exc) {
                 $this->addError('create_album', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
             }
@@ -277,32 +243,11 @@ class FacebookShell extends AbstractShell {
                     $result = $photo_info['link'];
                 }
             }
-        } catch (FacebookApiException $exc) {
-            $this->addError('upload_photo', $exc, __METHOD__);
         } catch (Exception $exc) {
             $this->addError('upload_photo', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
         }
 
         return $result;
-    }
-
-    public function get_addingAppToTabUrl() {
-        return 'https://www.facebook.com/dialog/pagetab?app_id='.$this->config->fb_app_id.'&next='.$this->config->domain_url;
-    }
-
-    public function get_tabUrl($params = false) {
-        if ($params && is_array($params))
-            return $this->config->fb_tab_url.'?app_data='.urlencode(http_build_query($params));
-        else
-            return $this->config->tab_url;
-    }
-
-    public function get_pageUrl() {
-        return $this->config->fb_page_url;
-    }
-
-    public function get_canvasUrl() {
-        return $this->config->fb_canvas_url;
     }
 
     public function get_accessToken() {
@@ -316,8 +261,6 @@ class FacebookShell extends AbstractShell {
             try {
                 $this->access_token = $this->obj->getAccessToken();
                 Yii::app()->session['access_token'] = $this->access_token;
-            } catch (FacebookApiException $exc) {
-                $this->addError('set_access_token', $exc, __METHOD__);
             } catch (Exception $exc) {
                 $this->addError('set_access_token', array($exc->getMessage(), $exc->getTraceAsString()));
             }
@@ -333,36 +276,6 @@ class FacebookShell extends AbstractShell {
         return $this->access_token;
     }
 
-    public function process_pageParams() {
-
-        $data = $this->parse_signed_request();
-
-        if (is_array($data)) {
-            foreach ($data as $k => $v) {
-                $this->config->fb_page_params[$k] = $v;
-            }
-
-            if (isset($data['page'])) {
-                $this->config->fb_page_id = $data['page']['id'];
-                $this->config->fb_page_admin = $data['page']['admin'];
-                $this->config->fb_page_liked = $data['page']['liked'];
-            }
-
-            if (isset($data['user_id']))
-                $this->config->fb_unique_id = $data['user_id'];
-
-            if (isset($data['user'])) {
-                $this->config->locale = $data['user']['locale'];
-            }
-
-            if (isset($data['app_data'])) {
-                parse_str($data['app_data'], $this->config->fb_tab_params);
-            }
-        }
-
-        return $data;
-    }
-
     /**
      * Get users facebook pic
      * @param type $unique_id
@@ -373,54 +286,6 @@ class FacebookShell extends AbstractShell {
     public static function get_pictureUrl($unique_id, $size = 'large') {
         $url = 'https://graph.facebook.com/'.$unique_id.'/picture?type='.$size;
         return $url;
-    }
-
-    public static function get_likeButton($url, $width = '100') {
-        return '<div class="fb-like" data-href="'.$url.'" data-send="false" data-layout="button_count" data-width="'.$width.'" data-show-faces="false"></div>';
-    }
-
-    public static function set_header() {
-        #- ie fix for api
-        header('P3P: CP="CAO PSA OUR"');
-    }
-
-    public static function set_meta($property, $value) {
-        Yii::app()->clientScript->registerMetaTag($value, null, null, array('property' => $property));
-    }
-
-    private function parse_signed_request() {
-
-        $signed_request = Yii::app()->request->getParam('signed_request');
-
-        if (empty($signed_request) || !$signed_request) {
-            $this->addError('parse', 'signed_request is needed!', __METHOD__);
-            return false;
-        }
-        list($encoded_sig, $payload) = explode('.', $signed_request, 2);
-
-        #- decode the data
-        $sig = $this->base64_url_decode($encoded_sig);
-        $data = json_decode($this->base64_url_decode($payload), true);
-
-        if (strtoupper($data['algorithm']) !== 'HMAC-SHA256') {
-            //'Unknown algorithm. Expected HMAC-SHA256';
-            $this->addError('algorithm_notSupported', array('algorithm' => strtoupper($data['algorithm'])), __METHOD__);
-            return false;
-        }
-
-        #- check sig
-        $expected_sig = hash_hmac('sha256', $payload, $this->config->fb_app_secret, $raw = true);
-
-        if ($sig !== $expected_sig) {
-            $this->addError('sign_notMatched', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($this->config->fb_app_secret)), __METHOD__);
-//            return false;
-        }
-
-        return $data;
-    }
-
-    private function base64_url_decode($input) {
-        return base64_decode(strtr($input, '-_', '+/'));
     }
 
 }

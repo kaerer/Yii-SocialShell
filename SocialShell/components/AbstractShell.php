@@ -79,4 +79,17 @@ abstract class AbstractShell {
         $this->actions = array();
     }
 
+    public static function redirect($target, $js = true) {
+        if(!headers_sent() && $js == false){
+            header('Location: '.$target);
+            exit();
+        }
+        echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><script type="text/javascript">top.location.href = "'.$target.'";</script>';
+        exit();
+    }
+
+    public function debug() {
+        return array('IDS' => $this->getActions(), 'ERRORS' => $this->getErrors());
+    }
+
 }
