@@ -74,8 +74,8 @@ function fb_login(permissions){
         }
         login_callback(response);
     }, {
-        scope:(permissions ? permissions : req_perms),
-        display: 'popup' //page, popup, iframe, or touch
+        scope:(permissions ? permissions : req_perms)
+//        display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
     });
 //    }, {scope:req_perms});
 }
