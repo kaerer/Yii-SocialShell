@@ -3,9 +3,13 @@
 /**
  * SocialShell Yii Module
  */
+Yii::Import('SocialShell.models.*');
+Yii::Import('SocialShell.components.*');
+Yii::Import('SocialShell.plugins.*');
+
 class SocialShellModule extends AbstractShell /* CWebModule */ {
 
-    const VERSION = 0.1;
+    const VERSION = 0.2;
 
     /**
      * Facebook Api Object
@@ -26,9 +30,11 @@ class SocialShellModule extends AbstractShell /* CWebModule */ {
     public $obj_instagram;
 
     public function init() {
-        Yii::Import('SocialShell.models.*');
-        Yii::Import('SocialShell.components.*');
-        Yii::Import('SocialShell.plugins.*');
+        $this->setImport(array(
+            'SocialShell.models.*',
+            'SocialShell.components.*',
+            'SocialShell.plugins.*',
+        ));
     }
 
     public function start_api() {
