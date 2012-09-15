@@ -1,6 +1,6 @@
 <?php
 
-$cs = Yii::app()->getClientScript();
+//$cs = Yii::app()->getClientScript();
 //$cs->registerScriptFile('/js/fb.js');
 /* @var $social SocialConfig */
 /* @var $cs ClientScript */
@@ -9,25 +9,30 @@ $appName = CHtml::encode($social->app_name);
 $controller = (YII_DEBUG ? 'debug.php' : '').'/'.Yii::app()->controller->getId();
 $page_liked = $social->fb_page_liked ? 'true' : 'false';
 
-$js = <<<EOF
-    var domainUrl   = '{$social->domain_url}';
 
-    var canvasUrl   = '{$social->fb_canvas_url}';
-    var pageUrl     = '{$social->fb_page_url}';
-    var tabUrl      = '{$social->fb_tab_url}';
+//TODO burası facebook.js nin obje olarak hazırlanacak yenı haline set edilecek...
+
+//$js = <<<EOF
+?>
+<script type="text/javascript">
+    var domainUrl   = '<?php echo $social->domain_url; ?>';
+
+    var canvasUrl   = '<?php echo $social->fb_canvas_url; ?>';
+    var pageUrl     = '<?php echo $social->fb_page_url; ?>';
+    var tabUrl      = '<?php echo $social->fb_tab_url; ?>';
 
     var mainUrl     = domainUrl;
 
-    var appName     = '{$appName}';
-    var fb_unique_id= '{$social->fb_unique_id}';
-    var req_perms   = '{$social->fb_permissions}';
-    var shareLink   = '{$social->share_url}';
-    var shareImage  = '{$social->share_image}';
+    var appName     = '<?php echo $appName; ?>';
+    var fb_unique_id= '<?php echo $social->fb_unique_id; ?>';
+    var req_perms   = '<?php echo $social->fb_permissions; ?>';
+    var shareUrl    = '<?php echo $social->share_url; ?>';
+    var shareImage  = '<?php echo $social->share_image; ?>';
 
     //true; //false;
-    var page_liked  = {$page_liked};
+    var page_liked  = <?php echo $page_liked; ?>;
 
-    var controller  = '{$controller}';
+    var controller  = '<?php echo $controller; ?>';
     var ajax        = null;
     var dialog      = null;
     var process     = null;
@@ -38,12 +43,14 @@ $js = <<<EOF
 
     var access_token = false;
     var signed_request = false;
-EOF;
+</script>
+<?php
+//EOF;
+//$cs->registerScript('socialJs', $js, CClientScript::POS_HEAD);
+
 
 //{Yii::app()->request->getQuery('signed_request')}
-
-$cs->registerScript('socialJs', $js, CClientScript::POS_HEAD);
-
+//$cs->registerScript('socialJs', $js, CClientScript::POS_HEAD);
 //$scriptMap = array();
 //$scriptFileName = 'social.js';
 

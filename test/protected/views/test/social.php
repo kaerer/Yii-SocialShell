@@ -19,10 +19,26 @@ FacebookShell::set_meta("fb:app_id", $social->fb_app_id);
 //CVarDumper::dump($_FILES, 4, 1);
 
 echo CHtml::link('Login', '#', array('id' => 'login'));
-CVarDumper::dump($socialModule->obj_facebook->get_user_info(), 4, 1);
 ?>
 
 <script type="text/javascript">
+    function login_callback(response){
+        if(response.status == 'connected') {
+            //            FB.api('/me', function(response) {
+            //                //console.log(response);
+            //                if(!fid) fid = response.id;
+            //                $('#firstname').val(response.first_name);
+            //                $('#lastname').val(response.last_name);
+            //                if(response.email) $('#email').val(response.email);
+            //            });
+            //            $('#signed_request').val(signed_request);
+
+            alert('Login oldu devam');
+        } else {
+            alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
+        }
+    }
+
     $(document).ready(function(){
         $('#login').click(function(e){
             e.preventDefault();
@@ -30,29 +46,44 @@ CVarDumper::dump($socialModule->obj_facebook->get_user_info(), 4, 1);
             fb_login();
         });
 
-        function login_callback(response){
-            if(response.status == 'connected') {
-                //            FB.api('/me', function(response) {
-                //                //console.log(response);
-                //                if(!fid) fid = response.id;
-                //                $('#firstname').val(response.first_name);
-                //                $('#lastname').val(response.last_name);
-                //                if(response.email) $('#email').val(response.email);
-                //            });
-                //            $('#signed_request').val(signed_request);
+        $('.share-btn-tweeter').click(function(e){
+            e.preventDefault();
+            shareLink = shareUrl;
+            var text = 'Prezervatif alırken başına gelen en komik olayı paylaşıp 1Koli Durex kazanmak istiyorsan tıkla! #basimanelergeldi ' + shareLink;
+            tw_share(text);
+        });
 
-                alert('Login oldu devam');
-            } else {
-                alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
-            }
-        }
+        $('.share-btn-friend').click(function(e){
+            e.preventDefault();
+            var text = 'Ben “prezervatif alırken başıma gelen en komik olay...” cümlesini tamamlayan hikayemi yazdım, katıldım. Sen de katıl, seçilen en komik olay seninki olsun, 1 Koli Durex kazan!';
+            fb_notification(text);
+        });
+
+        $('.share-btn-wall').click(function(e){
+            e.preventDefault();
+            var link_text = 'Ben prezervatif alırken başıma gelen en komik olay..';
+            var description = 'Prezervatif alırken başıma gelen en komik olayı yazıp, paylaştım. Sen de 1 Koli Durex kazanmak istiyorsan, hemen katıl.';
+            fb_feed(link_text, 'Durex Türkiye', description, shareImage, shareLink);
+        });
+
 
     });
 </script>
 
-Ugh!
+<div class="personal_msg">
+    Ugh!
+</div>
+
+<div class="share">
+    <a class="btn share-btn-friend"></a>
+    <a class="btn share-btn-wall"></a>
+    <a class="btn share-btn-tweeter"></a>
+</div>
 
 <?php
-CVarDumper::dump($social, 4, 1);
-CVarDumper::dump($socialModule->debug(), 4, 1);
+
+CVarDumper::dump(array(
+    'config: ' => $social,
+    'fb api: ' => $socialModule->obj_facebook->get_user_info(),
+    'Debug: ' => $socialModule->debug()), 4, true);
 $socialModule::end_view($social);
