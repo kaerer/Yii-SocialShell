@@ -1,7 +1,6 @@
 <?php
 
-//$cs = Yii::app()->getClientScript();
-//$cs->registerScriptFile('/js/fb.js');
+$cs = Yii::app()->getClientScript();
 /* @var $social SocialConfig */
 /* @var $cs ClientScript */
 
