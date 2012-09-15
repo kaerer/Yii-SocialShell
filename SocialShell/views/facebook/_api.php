@@ -18,15 +18,18 @@
                 //like butona tıklanma anı
                 liked(response);
             });
+
             //catch unlike event
             FB.Event.subscribe('edge.remove', function(response) {
                 unliked(response);
             });
 
-            FB.Event.subscribe('auth.login', function(response) {
-                window.location.reload();
-            });
+            //catch login and give permission event
+//            FB.Event.subscribe('auth.login', function(response) {
+//                window.location.reload();
+//            });
 
+            //catch logout event
             FB.Event.subscribe('auth.logout', function(response) {
                 window.location.reload();
             });

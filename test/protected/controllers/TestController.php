@@ -29,7 +29,7 @@ class TestController extends Controller {
         $config->fb_page_name = 'BaseApps';
         $config->fb_app_id = '143684392442216';
         $config->fb_app_secret = '60e4cc8bf31016623bcfb514a8607e5b';
-        $config->fb_permissions = 'email, user_likes, user_interests, user_birthday, user_hometown, offline_access, publish_actions';
+        $config->fb_permissions = 'user_likes, user_interests, user_birthday, user_hometown';
         $config->twitter_api = true;
         $config->ga_code = '31';
 
