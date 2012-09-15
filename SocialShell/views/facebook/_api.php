@@ -1,4 +1,4 @@
-<?php /* @var $social SocialConfig */?>
+<?php /* @var $social SocialConfig */ ?>
 <?php if ($social->facebook_api): ?>
     <!-- Facebook api -->
     <div id="fb-root"></div>
@@ -21,6 +21,14 @@
             //catch unlike event
             FB.Event.subscribe('edge.remove', function(response) {
                 unliked(response);
+            });
+
+            FB.Event.subscribe('auth.login', function(response) {
+                window.location.reload();
+            });
+
+            FB.Event.subscribe('auth.logout', function(response) {
+                window.location.reload();
             });
 
             FB.getLoginStatus(function(response) {
