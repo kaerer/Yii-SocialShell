@@ -16,15 +16,15 @@ abstract class SocialConfigBox extends stdClass {
      * Google Analytic ID
      * @var $ga_code string
      */
-    public $ga_code = '';
+    public $ga_code = false;
 
     /**
      * Facebook Params
      */
     public $facebook_api = false;
-    public $fb_app_id = false;
-    public $fb_app_secret = false;
-    public $fb_unique_id = false;
+    public $fb_app_id = null;
+    public $fb_app_secret = null;
+    public $fb_unique_id = null;
 
     /**
      * Auth Permissions
@@ -33,12 +33,13 @@ abstract class SocialConfigBox extends stdClass {
      * user_birthday, user_hometown,
      * offline_access,
      * publish_stream, publish_actions,
+     * ...
      *
      * @var type
      */
     public $fb_permissions = 'email, user_likes, user_interests, user_birthday, user_hometown, offline_access, publish_actions';
 
-    public $fb_page_id = '';
+    public $fb_page_id = null;
     public $fb_page_admin = false;
     public $fb_page_liked = false; //public $is_fan =& #- for
     public $fb_page_name = 'BaseApps';
@@ -53,20 +54,20 @@ abstract class SocialConfigBox extends stdClass {
      * Twitter Params
      */
     public $twitter_api = false;
-    public $tw_key = '';
-    public $tw_secret = '';
-    public $tw_token = '';
-    public $tw_token_secret = '';
-    public $tw_unique_id = false;
+    public $tw_key = null;
+    public $tw_secret = null;
+    public $tw_token = null;
+    public $tw_token_secret = null;
+    public $tw_unique_id = null;
 
     /**
      * Instagram Params
      */
     public $instagram_api = false;
-    public $in_key = '';
-    public $in_secret = '';
-    public $in_token = '';
-    public $in_token_secret = '';
+    public $in_key = null;
+    public $in_secret = null;
+    public $in_token = null;
+    public $in_token_secret = null;
     public $in_unique_id = false;
 
     /**
