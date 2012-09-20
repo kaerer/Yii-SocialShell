@@ -6,12 +6,6 @@ $cs = Yii::app()->clientScript;
 /* @var $social SocialConfig */
 /* @var $socialModule SocialShellModule */
 
-//$cs->registerCoreScript('jquery');
-//$cs->registerCoreScript('jquery.ui');
-//$cs->registerScriptFile('/js/jquery.placeholder.min.js', CClientScript::POS_HEAD);
-//$cs->registerScriptFile('/js/jquery.validate.min.js', CClientScript::POS_HEAD);
-//$cs->registerScriptFile('/js/jmask/jquery.maskedinput-1.3.min.js', CClientScript::POS_HEAD);
-
 FacebookShell::set_meta("fb:app_id", $social->fb_app_id);
 
 //CVarDumper::dump($_POST, 4, 1);
@@ -59,13 +53,6 @@ FacebookShell::set_meta("fb:app_id", $social->fb_app_id);
             check_login();
         });
 
-        $('.share-btn-tweeter').click(function(e){
-            e.preventDefault();
-            shareLink = shareUrl;
-            var text = 'Prezervatif alırken başına gelen en komik olayı paylaşıp 1Koli Durex kazanmak istiyorsan tıkla! #basimanelergeldi ' + shareLink;
-            tw_share(text);
-        });
-
         $('.share-btn-friend').click(function(e){
             e.preventDefault();
             var text = 'Ben “prezervatif alırken başıma gelen en komik olay...” cümlesini tamamlayan hikayemi yazdım, katıldım. Sen de katıl, seçilen en komik olay seninki olsun, 1 Koli Durex kazan!';
@@ -100,7 +87,6 @@ FacebookShell::set_meta("fb:app_id", $social->fb_app_id);
 <div class="share">
     <a class="btn share-btn-friend"></a>
     <a class="btn share-btn-wall"></a>
-    <a class="btn share-btn-tweeter"></a>
 </div>
 <div class="info">
     <?php
