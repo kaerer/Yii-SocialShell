@@ -1,8 +1,8 @@
 <?php
-$socialModule::start_view($social);
+$socialModule::start_view($socialConfig);
 $cs = Yii::app()->clientScript;
 /* @var $cs CClientScript */
-/* @var $social SocialConfig */
+/* @var $socialConfig SocialConfig */
 
 $cs->registerCoreScript('jquery');
 //$cs->registerCoreScript('jquery.ui');
@@ -10,10 +10,11 @@ $cs->registerCoreScript('jquery');
 //$cs->registerScriptFile('/js/jquery.validate.min.js', CClientScript::POS_HEAD);
 //$cs->registerScriptFile('/js/jmask/jquery.maskedinput-1.3.min.js', CClientScript::POS_HEAD);
 
-FacebookShell::set_meta("fb:app_id", $social->fb_app_id);
+FacebookShell::set_meta("fb:app_id", $socialConfig->fb_app_id);
 ?>
 <script type="text/javascript">
     $(document).ready(function() {
+
     });
 </script>
 <style type="text/css">
@@ -21,9 +22,9 @@ FacebookShell::set_meta("fb:app_id", $social->fb_app_id);
 <div id="wrapper">
     <div id="wrapper_in">
         <?php
-        CVarDumper::dump($social, 5, 1);
+        CVarDumper::dump($socialConfig, 5, 1);
         ?>
     </div>
 </div>
 <?php
-$socialModule::end_view($social);
+$socialModule::end_view($socialConfig);

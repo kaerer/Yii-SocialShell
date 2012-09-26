@@ -1,8 +1,8 @@
 <?php
-/* @var $social SocialConfig */
-if ($social->facebook_api) {
-    $this->renderPartial('SocialShell.views.facebook._api', array('social' => $social));
+/* @var $socialConfig SocialConfig */
+if ($socialConfig->facebook_api) {
+    $this->renderPartial('SocialShell.views.facebook._api', array('socialConfig' => $socialConfig));
 }
-if ($social->twitter_api){
-    $this->renderPartial('SocialShell.views.twitter._api', array('social' => $social));
+if ($socialConfig->twitter_api){
+    $this->renderPartial('SocialShell.views.twitter._api', array('socialConfig' => $socialConfig));
 }

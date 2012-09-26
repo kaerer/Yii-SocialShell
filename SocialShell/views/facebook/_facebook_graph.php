@@ -16,7 +16,7 @@ $redirect_url = $products['redirect'];
         <meta property="og:title" content="<?= $title ?>"/>
         <meta property="og:url" content="<?= $url ?>"/>
         <meta property="og:image" content="<?= $img_url ?>"/>
-        <meta property="og:site_name" content="<?= $social['app_name'] ?>"/>
+        <meta property="og:site_name" content="<?= $socialConfig['app_name'] ?>"/>
         <meta property="og:type" content="website" />
         <meta property="og:description" content="<?= $text ?>"/>
     </head>
