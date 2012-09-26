@@ -1,18 +1,22 @@
 <?php
 
 /**
- * Description of Facebook Shell Plugin
+ * Facebook Shell Plugin
  *
- * @author erce
+ * @author Erce Erözbek <erce.erozbek@gmail.com>
+ *
+ * @property Facebook $obj Facebook SDK Object
+ * @property string $access_token Facebook SDK access token
+ *
+ * @property array $user_info Facebook user data
  */
 class FacebookShell extends AbstractShell {
 
     const VERSION = 0.3;
 
     private $obj;
-    public $access_token;
-
-    public $user_info;
+    private $access_token;
+    private $user_info;
 
     public function &getApi() {
         return $this->obj;
@@ -36,6 +40,20 @@ class FacebookShell extends AbstractShell {
         $this->get_accessToken();
         $this->process_pageParams();
 //        $this->unique = $this->obj->getUser();
+
+        $this->config->fb_page_url = 'https://www.facebook.com/'.$this->fb_page_name;
+
+        if ($this->config->fb_app_id)
+            $this->config->fb_tab_url = $this->get_tabUrl();
+//
+//        switch (TRUE) {
+//            case (bool)$this->config->fb_tab_url:
+//                $this->config->share_url = $this->config->fb_tab_url;
+//                break;
+//            default:
+//                $this->config->share_url = $this->config->fb_canvas_url;
+//                break;
+//        }
 
         return $this->getApi();
     }
@@ -291,10 +309,9 @@ class FacebookShell extends AbstractShell {
     }
 
     public function get_tabUrl($params = false) {
-        if ($params && is_array($params))
-            return $this->config->fb_tab_url.'?app_data='.urlencode(http_build_query($params));
-        else
-            return $this->config->tab_url;
+        $str_params = is_array($params) ? '&app_data='.urlencode(http_build_query($params)) : '';
+        return "https://www.facebook.com/pages/-/".$this->config->fb_page_id."?sk=app_".$this->config->fb_app_id.$str_params;
+//            return $this->config->fb_tab_url.'?app_data='.urlencode(http_build_query($params));
     }
 
     public function get_pageUrl() {
@@ -307,6 +324,18 @@ class FacebookShell extends AbstractShell {
 
     public function get_accessToken() {
         return $this->access_token ? $this->access_token : $this->obj->getAccessToken();
+    }
+
+    public function is_page_admin() {
+        return (bool)$this->config->fb_page_admin;
+    }
+
+    public function is_page() {
+        return (bool)$this->config->fb_page_id;
+    }
+
+    public function is_page_liked() {
+        return (bool)$this->config->fb_page_liked;
     }
 
     public function set_accessToken($access_token = false, $renew = false) {
