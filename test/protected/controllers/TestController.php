@@ -1,6 +1,18 @@
 <?php
 
+/**
+ * Test Controller
+ * Social Shell Examples
+ * @author Erce Erözbek <erce.erozbek@gmail.com>
+ *
+ * @property SocialShellModule $socialModule SocialShellModule instance
+ * @property SocialConfig $socialConfig SocialConfig instance
+ *
+ */
+
 class TestController extends Controller {
+    public $socialModule = null;
+    public $socialConfig = array();
 
     public function actionIndex() {
 
@@ -20,27 +32,28 @@ class TestController extends Controller {
 
         $this->layout = '//test/layout';
 
-        $social = Yii::app()->getModule('SocialShell');
-        /* @var $social SocialShellModule */
+        $this->socialModule = Yii::app()->getModule('SocialShell');
+        /* @var $this->socialModule SocialShellModule */
 
         #- Set SocialShell Object
-        $config = new SocialConfig();
-        $config->facebook_api = true;
-        $config->fb_page_name = 'BaseApps';
-        $config->fb_app_id = '143684392442216';
-        $config->fb_app_secret = '60e4cc8bf31016623bcfb514a8607e5b';
-        $config->fb_permissions = 'user_likes, user_interests, user_birthday, user_hometown';
+        $this->socialConfig = new SocialConfig();
+        $this->socialConfig->facebook_api = true;
+        $this->socialConfig->fb_page_name = 'BaseApps';
+        $this->socialConfig->fb_app_id = '143684392442216';
+        $this->socialConfig->fb_app_secret = '60e4cc8bf31016623bcfb514a8607e5b';
+        $this->socialConfig->fb_permissions = 'user_likes, user_interests, user_birthday, user_hometown';
+        $this->socialConfig->share_url = $this->socialConfig->fb_tab_url;
 
         #- Run SocialShell
-        $social->load($config);
-        $social->start_api();
+        $this->socialModule->load($this->socialConfig);
+        $this->socialModule->start_api();
 
 //        CVarDumper::dump($social->getConfig(),10,1);
-//        CVarDumper::dump($config->api_facebook->debug(),10,1);
+//        CVarDumper::dump($social->obj_facebook->debug(),10,1);
 
         $this->render('facebook', array(
-            'socialModule' => $social,
-            'social' => $config
+            'social' => $this->socialModule,
+            'config' => $this->socialConfig
         ));
     }
 
@@ -48,23 +61,19 @@ class TestController extends Controller {
 
         $this->layout = '//test/layout';
 
-        $social = Yii::app()->getModule('SocialShell');
-        /* @var $social SocialShellModule */
+        $this->socialModule = Yii::app()->getModule('SocialShell');
 
         #- Set SocialShell Object
-        $config = new SocialConfig();
-        $config->ga_code = '999999999';
+        $this->socialConfig = new SocialConfig();
+        $this->socialConfig->ga_code = '999999999';
 
         #- Run SocialShell
-        $social->load($config);
-        $social->start_api();
-
-//        CVarDumper::dump($social->getConfig(),10,1);
-//        CVarDumper::dump($config->api_facebook->debug(),10,1);
+        $this->socialModule->load($this->socialConfig);
+        $this->socialModule->start_api();
 
         $this->render('analytics', array(
-            'socialModule' => $social,
-            'social' => $config
+            'social' => $this->socialModule,
+            'config' => $this->socialConfig
         ));
     }
 
@@ -93,13 +102,32 @@ class TestController extends Controller {
         $social->load($config);
         $social->start_api();
 
-//        CVarDumper::dump($social->getConfig(),10,1);
-//        CVarDumper::dump($config->api_facebook->debug(),10,1);
-
         $this->render('twitter', array(
-            'socialModule' => $social,
-            'social' => $config
+            'social' => $social,
+            'config' => $config
         ));
+    }
+
+    public function actionObject(){
+        $post = $_POST;
+        $status = false;
+        $error = array(
+            'name' => 'Boş Bırakmayınız'
+        );
+
+        if(count($post) > 0){
+            $status = true;
+        } else {
+            $error = true;
+        }
+
+        $result = array(
+            'success' => $status,
+            'error' => $error,
+            'hooop' => 'Napıyon? :)',
+            'post' => $post,
+        );
+        echo CJSON::encode($result);
     }
 
 }

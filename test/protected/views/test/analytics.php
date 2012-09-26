@@ -1,10 +1,10 @@
 <?php
-$socialModule::start_view($social);
+$social::start_view($config);
 
 $cs = Yii::app()->clientScript;
 /* @var $cs CClientScript */
-/* @var $social SocialConfig */
-/* @var $socialModule SocialShellModule */
+/* @var $config SocialConfig */
+/* @var $social SocialShellModule */
 
 //CVarDumper::dump($_POST, 4, 1);
 //CVarDumper::dump($_FILES, 4, 1);
@@ -27,8 +27,8 @@ $cs = Yii::app()->clientScript;
 <div class="info">
     <?php
     CVarDumper::dump(array(
-        'config: ' => $social,
-        'Debug: ' => $socialModule->debug()), 4, true);
-    $socialModule::end_view($social);
+        'config: ' => $config,
+        'Debug: ' => $social->debug()), 4, true);
+    $social::end_view($config);
     ?>
 </div>
