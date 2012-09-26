@@ -3,7 +3,7 @@
 /**
  * Description of AbstractShell
  *
- * @author erce
+ * @author Erce Erözbek <erce.erozbek@gmail.com>
  */
 abstract class AbstractShell {
 
@@ -26,8 +26,17 @@ abstract class AbstractShell {
      * Get Config
      * @return SocialConfig
      */
-    public function getConfig() { //& referans kullanmak
-        return $this->config;
+    public function getConfig($all = false) { //& referans kullanmak
+        if ($all)
+            return $this->config;
+
+        $config = array();
+        foreach ($this->config as $k => $v) {
+            if ($v)
+                $config[$k] = $v;
+        }
+
+        return $config;
     }
 
     /**
@@ -49,38 +58,38 @@ abstract class AbstractShell {
         $this->loaded = true;
     }
 
-    public function getErrors(){
+    public function getErrors() {
         return $this->errors;
     }
 
-    public function addError($key, $value, $group = 0){
+    public function addError($key, $value, $group = 0) {
         $error = array(
             $key => $value
         );
         $this->errors[$group] = $error;
     }
 
-    public function cleanErrors(){
+    public function cleanErrors() {
         $this->errors = array();
     }
 
-    public function getActions(){
+    public function getActions() {
         return $this->actions;
     }
 
-    public function addAction($key, $value, $group = 0){
+    public function addAction($key, $value, $group = 0) {
         $action = array(
             $key => $value
         );
         $this->actions[$group] = $action;
     }
 
-    public function cleanActions(){
+    public function cleanActions() {
         $this->actions = array();
     }
 
     public static function redirect($target, $js = true) {
-        if(!headers_sent() && $js == false){
+        if (!headers_sent() && $js == false) {
             header('Location: '.$target);
             exit();
         }
