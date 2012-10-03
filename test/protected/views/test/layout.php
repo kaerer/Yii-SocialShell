@@ -6,7 +6,7 @@
 
         <?php
         $cs = Yii::app()->clientScript;
-//        $cs->registerCoreScript('jquery');
+        $cs->registerCoreScript('jquery');
 //        $cs->registerCoreScript('jquery.ui');
 //        $cs->registerCssFile(Yii::app()->clientScript->getCoreScriptUrl().'/jui/css/base/jquery-ui.css');
 //        $cs->registerScriptFile('/js/jmask/jquery.maskedinput-1.3.min.js');
@@ -14,8 +14,8 @@
 //        $cs->registerScriptFile('/js/jquery.blockUI.js');
         ?>
         <!-- blueprint CSS framework -->
-        <!--<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/blueprint.css" media="screen, projection" />-->
-        <!--<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/print.css" media="print" />-->
+        <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/blueprint.css" media="screen, projection" />
+        <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/print.css" media="print" />
 
         <!--[if lt IE 8]>
             <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/ie.css" media="screen, projection" />

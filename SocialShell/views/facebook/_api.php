@@ -16,12 +16,12 @@
             //catch like event
             FB.Event.subscribe('edge.create', function(response) {
                 //like butona tıklanma anı
-                liked(response);
+                fb_liked(response);
             });
 
             //catch unlike event
             FB.Event.subscribe('edge.remove', function(response) {
-                unliked(response);
+                fb_unliked(response);
             });
 
             //catch login and give permission event
@@ -37,10 +37,10 @@
             FB.getLoginStatus(function(response) {
                 response_global = response;
                 if(fb_unique_id && response.status == 'connected') {
-                    loggedin = true;
+                    fb_loggedin = true;
                     fb_unique_id = response.authResponse.userID;
-                    access_token = response.authResponse.accessToken;
-                    signed_request = response.authResponse.signedRequest;
+//                    access_token = response.authResponse.accessToken;
+//                    signed_request = response.authResponse.signedRequest;
                 }
                 //response.authResponse;
             }, true);

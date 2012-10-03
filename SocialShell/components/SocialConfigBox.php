@@ -76,23 +76,27 @@ abstract class SocialConfigBox extends stdClass {
     public $fb_permissions = 'email, user_likes, user_interests, user_birthday, user_hometown, offline_access, publish_actions';
 
     /**
-     *
+     * Facebook fanpage ID
      * @var int
      */
     public $fb_page_id = null;
 
     /**
-     *
+     * Is the user admin of the current page
      * @var bool
      */
     public $fb_page_admin = false;
 
     /**
-     *
+     * Is the current user fan of the current page
      * @var bool
      */
     public $fb_page_liked = false; //public $is_fan =& #- for
 
+    /**
+     * Fanpage name
+     * @var string
+     */
     public $fb_page_name = 'BaseApps';
     public $fb_page_url = 'https://www.facebook.com/';
     public $fb_page_params = array();
@@ -121,8 +125,22 @@ abstract class SocialConfigBox extends stdClass {
     public $instagram_api = false;
     public $in_key = null;
     public $in_secret = null;
-    public $in_token = null;
-    public $in_token_secret = null;
+
+    public $in_callback = null;
+
+    /**
+     * Auth Permissions
+     *
+     * comma seperated permissin string
+     *
+     * basic, relationships, likes, comments
+     *
+     * @var string
+     */
+    public $in_permissions = 'basic, relations, likes, comments';
+
+//    public $in_token = null;
+//    public $in_token_secret = null;
     public $in_unique_id = false;
 
     /*

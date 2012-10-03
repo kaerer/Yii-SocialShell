@@ -67,3 +67,19 @@ function tw_favorite_callback(tweet_id){
 function tw_reply_callback(tweet_id){
     track('tw_reply', tweet_id);
 }
+
+function open_popup(url, w, h, name){
+
+    var name = name ? name : 'popup_' + rand(10, 99);
+
+    var left = (screen.width/2)-(w/2);
+    var top = (screen.height/2)-(h/2);
+
+    var popupx  = window.open(url,name,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=yes, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+    if (window.focus)
+    {
+        popupx.focus();
+    }
+
+}
+

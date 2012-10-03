@@ -9,8 +9,8 @@
  * @property SocialConfig $socialConfig SocialConfig instance
  *
  */
-
 class TestController extends Controller {
+
     public $socialModule = null;
     public $socialConfig = array();
 
@@ -28,6 +28,13 @@ class TestController extends Controller {
 //        CVarDumper::dump($dateFormatter, 5, true);
     }
 
+    public function actionCleanSession() {
+        if (YII_DEBUG) {
+            Yii::app()->session->destroy();
+            echo 1;
+        }
+    }
+
     public function actionFacebook() {
 
         $this->layout = '//test/layout';
@@ -42,14 +49,13 @@ class TestController extends Controller {
         $this->socialConfig->fb_app_id = '143684392442216';
         $this->socialConfig->fb_app_secret = '60e4cc8bf31016623bcfb514a8607e5b';
         $this->socialConfig->fb_permissions = 'user_likes, user_interests, user_birthday, user_hometown';
-        $this->socialConfig->share_url = $this->socialConfig->fb_tab_url;
 
         #- Run SocialShell
         $this->socialModule->load($this->socialConfig);
         $this->socialModule->start_api();
 
-//        CVarDumper::dump($social->getConfig(),10,1);
-//        CVarDumper::dump($social->obj_facebook->debug(),10,1);
+        $this->socialConfig->share_url = $this->socialModule->obj_facebook->get_tabUrl();
+        $this->socialConfig->share_image = $this->socialConfig->domain_url.'/images/socialshell/share.png';
 
         $this->render('facebook', array(
             'social' => $this->socialModule,
@@ -108,14 +114,49 @@ class TestController extends Controller {
         ));
     }
 
-    public function actionObject(){
+    public function actionTwitterCallback() {
+
+    }
+
+    public function actionInstagram() {
+
+        $this->layout = '//test/layout';
+
+        $social = Yii::app()->getModule('SocialShell');
+        /* @var $social SocialShellModule */
+
+        #- Set SocialShell Object
+        $config = new SocialConfig();
+        $config->in_key = '065f5749a0eb43d0bb1225825722ee35';
+        $config->in_secret = '4389446b8b7d47a1823937538dd26555';
+
+        // Debug mod açıkken api jslerini çağırmaz
+        $config->instagram_api = true;
+
+        #- Run SocialShell
+        $social->load($config);
+        $social->start_api();
+
+        $social->obj_instagram->callback();
+
+        $this->render('instagram', array(
+            'social' => $social,
+            'config' => $config
+        ));
+    }
+
+    public function actionInstagramCallback() {
+
+    }
+
+    public function actionObject() {
         $post = $_POST;
         $status = false;
         $error = array(
             'name' => 'Boş Bırakmayınız'
         );
 
-        if(count($post) > 0){
+        if (count($post) > 0) {
             $status = true;
         } else {
             $error = true;
@@ -128,6 +169,11 @@ class TestController extends Controller {
             'post' => $post,
         );
         echo CJSON::encode($result);
+    }
+
+    public function actionSacinTarzin() {
+        $this->layout = false;
+        $this->render('//demo/sacintarzin');
     }
 
 }

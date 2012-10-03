@@ -5,62 +5,63 @@
  *
  * @author Erce Erözbek <erce.erozbek@gmail.com>
  *
- * @property Facebook $obj Facebook SDK Object
+ * @property Facebook $api_object Facebook SDK Object
  * @property string $access_token Facebook SDK access token
  *
  * @property array $user_info Facebook user data
+ *
+ * Facebook type comes from vendors.facebook.Facebook
  */
-class FacebookShell extends AbstractShell {
+class FacebookShell extends AbstractPlugin {
 
-    const VERSION = 0.3;
+    const VERSION = 0.4;
 
-    private $obj;
+    private $api_object;
     private $access_token;
     private $user_info;
 
     public function &getApi() {
-        return $this->obj;
+        return $this->api_object;
     }
 
-    public function setApi(&$api) {
-        $this->obj = & $api;
+    public function setApi(Facebook &$api_object) {
+        $this->api_object = & $api_object;
     }
 
     public function start_api() {
         Yii::import('SocialShell.vendors.facebook.Facebook');
         self::set_header();
 
-        $this->obj = new Facebook(array(
+        switch (true) {
+            case!$this->config->fb_app_id:
+                throw new Exception('AppID not defined');
+                break;
+            case!$this->config->fb_app_secret:
+                throw new Exception('AppSecret not defined');
+                break;
+        }
+
+        $this->api_object = new Facebook(array(
                     'appId' => $this->config->fb_app_id,
                     'secret' => $this->config->fb_app_secret,
                     'fileUpload' => true,
                     'cookie' => true,
                 ));
 
-        $this->get_accessToken();
+        $this->set_accessTokenSession($this->get_accessToken());
         $this->process_pageParams();
 //        $this->unique = $this->obj->getUser();
 
-        $this->config->fb_page_url = 'https://www.facebook.com/'.$this->fb_page_name;
+        $this->config->fb_page_url = 'https://www.facebook.com/'.$this->config->fb_page_name;
 
-        if ($this->config->fb_app_id)
-            $this->config->fb_tab_url = $this->get_tabUrl();
-//
-//        switch (TRUE) {
-//            case (bool)$this->config->fb_tab_url:
-//                $this->config->share_url = $this->config->fb_tab_url;
-//                break;
-//            default:
-//                $this->config->share_url = $this->config->fb_canvas_url;
-//                break;
-//        }
+        $this->config->fb_tab_url = $this->get_tabUrl();
 
         return $this->getApi();
     }
 
     public function get_uniqueID() {
         if (!$this->config->fb_unique_id)
-            $this->config->fb_unique_id = $this->obj->getUser();
+            $this->config->fb_unique_id = $this->api_object->getUser();
         return $this->config->fb_unique_id;
     }
 
@@ -70,13 +71,41 @@ class FacebookShell extends AbstractShell {
             'redirect_uri' => $redirect_url ? $redirect_url : $this->config->share_url
         );
 
-        $loginUrl = $this->obj->getLoginUrl($params);
+        $loginUrl = $this->api_object->getLoginUrl($params);
         return $loginUrl;
     }
 
     public function get_logoutUrl() {
-        $loginUrl = $this->obj->getLogoutUrl();
+        $loginUrl = $this->api_object->getLogoutUrl();
         return $loginUrl;
+    }
+
+    public function get_accessToken() {
+        if (empty($this->access_token))
+            $this->access_token = $this->api_object->getAccessToken();
+
+        return $this->access_token;
+    }
+
+    public function set_accessToken($access_token = false, $renew = false) {
+        if ($access_token) {
+            (true === is_object($access_token)) ? $this->access_token = $access_token->access_token : $this->access_token = $access_token;
+            $this->api_object->setAccessToken($this->access_token);
+            $this->set_accessTokenSession($this->access_token);
+        } elseif ($renew && $this->get_accessTokenSession() !== false) {
+            $this->access_token = $this->get_accessTokenSession();
+            $this->api_object->setAccessToken($this->access_token);
+        } else {
+            $this->addError('set_access_token', 'AccessToken is empty', __METHOD__);
+        }
+    }
+
+    private function get_accessTokenSession() {
+        return Yii::app()->session['fb_access_token'];
+    }
+
+    private function set_accessTokenSession($access_token) {
+        Yii::app()->session['fb_access_token'] = $access_token;
     }
 
     public function get_taken_permissions() {
@@ -138,7 +167,7 @@ class FacebookShell extends AbstractShell {
                 $attachment['caption'] = $caption;
             if ($picture)
                 $attachment['picture'] = $picture;
-            $result = $this->obj->api('/'.($unique_id ? $unique_id : 'me').'/feed/', 'POST', $attachment);
+            $result = $this->api_object->api('/'.($unique_id ? $unique_id : 'me').'/feed/', 'POST', $attachment);
             $this->addAction('share', $result, __METHOD__);
             return $result;
         } catch (FacebookApiException $exc) {
@@ -163,7 +192,7 @@ class FacebookShell extends AbstractShell {
 
     public function get_object($object_path) {
         try {
-            $results = $this->obj->api($object_path); //.'?access_token='.$this->access_token()
+            $results = $this->api_object->api($object_path); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
             $this->addError('data', $exc, __METHOD__);
         } catch (Exception $exc) {
@@ -196,7 +225,7 @@ class FacebookShell extends AbstractShell {
         try {
             if (!isset($object_params['accessToken']))
                 $object_params['accessToken'] = $this->get_accessToken();
-            $results = $this->obj->api($object_path, $method, $object_params); //.'?access_token='.$this->access_token()
+            $results = $this->api_object->api($object_path, $method, $object_params); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
             $this->addError('data', $exc, __METHOD__);
         } catch (Exception $exc) {
@@ -246,7 +275,7 @@ class FacebookShell extends AbstractShell {
 
         try {
             $album_uid = false;
-            $albums = $this->obj->api('/me/albums');
+            $albums = $this->api_object->api('/me/albums');
             if (is_array($albums['data'])) {
                 foreach ($albums['data'] as $a) {
                     if ($a['name'] == $album_details['name']) {
@@ -265,7 +294,7 @@ class FacebookShell extends AbstractShell {
         if (!$album_uid) {
             try {
                 #- Album yarat
-                $create_album = $this->obj->api('/me/albums', 'POST', $album_details);
+                $create_album = $this->api_object->api('/me/albums', 'POST', $album_details);
                 if ($create_album) {
                     $album_uid = $create_album['id'];
                     $this->addAction('create_album', $album_uid, __METHOD__);
@@ -285,11 +314,11 @@ class FacebookShell extends AbstractShell {
                 'image' => '@'.realpath($photo_params['file']),
                 'message' => $photo_params['description'],
             );
-            $photo = $this->obj->api('/'.$album_uid.'/photos', 'POST', $photo_details);
+            $photo = $this->api_object->api('/'.$album_uid.'/photos', 'POST', $photo_details);
             if ($photo && isset($photo['id'])) {
                 //TODO:: gelen $photo değişkeni içinde link var mı acep? tekrar kontrol niheye
                 $this->addAction('create_photo', $photo['id'], __METHOD__);
-                $photo_info = $this->obj->api('/'.$photo['id']);
+                $photo_info = $this->api_object->api('/'.$photo['id']);
                 if ($photo_info) {
                     $this->ids['upload_photo'] = $photo_info;
                     $result = $photo_info['link'];
@@ -309,9 +338,12 @@ class FacebookShell extends AbstractShell {
     }
 
     public function get_tabUrl($params = false) {
-        $str_params = is_array($params) ? '&app_data='.urlencode(http_build_query($params)) : '';
-        return "https://www.facebook.com/pages/-/".$this->config->fb_page_id."?sk=app_".$this->config->fb_app_id.$str_params;
-//            return $this->config->fb_tab_url.'?app_data='.urlencode(http_build_query($params));
+        if (!$this->config->fb_tab_url) {
+            $this->config->fb_tab_url = $this->config->fb_page_url.'/app_'.$this->config->fb_app_id;
+        }
+        $str_params = is_array($params) ? 'app_data='.urlencode(http_build_query($params)) : '';
+//        return "https://www.facebook.com/pages/-/".$this->config->fb_page_id."?sk=app_".$this->config->fb_app_id.($str_params ? '&'.$str_params : '');
+        return $this->config->fb_tab_url.($str_params ? '?'.$str_params : '');
     }
 
     public function get_pageUrl() {
@@ -320,10 +352,6 @@ class FacebookShell extends AbstractShell {
 
     public function get_canvasUrl() {
         return $this->config->fb_canvas_url;
-    }
-
-    public function get_accessToken() {
-        return $this->access_token ? $this->access_token : $this->obj->getAccessToken();
     }
 
     public function is_page_admin() {
@@ -336,30 +364,6 @@ class FacebookShell extends AbstractShell {
 
     public function is_page_liked() {
         return (bool)$this->config->fb_page_liked;
-    }
-
-    public function set_accessToken($access_token = false, $renew = false) {
-//        CVarDumper::dump($this->access_token, 4, true);
-//        CVarDumper::dump(Yii::app()->session->toArray(), 4, true);
-        if ($renew || !$this->access_token) {
-            try {
-                $this->access_token = $this->obj->getAccessToken();
-                Yii::app()->session['access_token'] = $this->access_token;
-            } catch (FacebookApiException $exc) {
-                $this->addError('set_access_token', $exc, __METHOD__);
-            } catch (Exception $exc) {
-                $this->addError('set_access_token', array($exc->getMessage(), $exc->getTraceAsString()));
-            }
-        }
-
-        if ($renew && isset(Yii::app()->session['access_token']) && !empty(Yii::app()->session['access_token'])) {
-            $this->access_token = Yii::app()->session['access_token'];
-            $this->obj->setAccessToken($this->access_token);
-        } else {
-            $this->access_token = $access_token;
-            $this->obj->setAccessToken($access_token);
-        }
-        return $this->access_token;
     }
 
     public function process_pageParams() {
@@ -441,8 +445,8 @@ class FacebookShell extends AbstractShell {
         $expected_sig = hash_hmac('sha256', $payload, $this->config->fb_app_secret, $raw = true);
 
         if ($sig !== $expected_sig) {
-            $this->addError('sign_notMatched', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($this->config->fb_app_secret)), __METHOD__);
-//            return false;
+            $this->addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($this->config->fb_app_secret)), __METHOD__);
+            return false;
         }
 
         return $data;

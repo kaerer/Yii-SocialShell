@@ -13,7 +13,7 @@ FacebookShell::set_meta("fb:app_id", $config->fb_app_id);
 ?>
 
 <script type="text/javascript">
-    function login_callback(response){
+    function fb_login_callback(response){
         if(response.status == 'connected') {
             fb_unique_id = response.userID;
             console.log(response);
@@ -26,7 +26,7 @@ FacebookShell::set_meta("fb:app_id", $config->fb_app_id);
             //
 
             //Form post anlarında sayfadaki signed_request kaybolmasın diye, form içine hidden gömüp izin anında set etmek bazen hayat kurtarıyor
-            $('#signed_request').val(signed_request);
+//            $('#signed_request').val(fb_signed_request);
 
             alert('Login oldu devam');
         } else {
@@ -91,8 +91,10 @@ FacebookShell::set_meta("fb:app_id", $config->fb_app_id);
 <div class="info">
     <?php
     CVarDumper::dump(array(
-        'config: ' => $config,
-        'fb api: ' => $social->obj_facebook->get_user_info(),
+        'session: ' => Yii::app()->session->toArray(),
+        'config: ' => $social->obj_facebook->getConfig(),
+//        'config: ' => $config,
+        'fb user info: ' => $social->obj_facebook->get_user_info(),
         'Debug: ' => $social->debug()), 4, true);
     $social::end_view($config);
     ?>

@@ -3,6 +3,7 @@
 /**
  * SocialShell Yii Module
  */
+Yii::Import('SocialShell.controllers.*');
 Yii::Import('SocialShell.models.*');
 Yii::Import('SocialShell.components.*');
 Yii::Import('SocialShell.plugins.*');
@@ -49,10 +50,21 @@ class SocialShellModule extends AbstractShell /* CWebModule */ {
     }
 
     public function start_api() {
+
         if ($this->config->facebook_api) {
             $this->obj_facebook = new FacebookShell();
             $this->obj_facebook->setConfig($this->config);
             $this->obj_facebook->start_api();
+        }
+        if ($this->config->twitter_api) {
+            $this->obj_twitter = new TwitterShell();
+//            $this->obj_twitter->setConfig($this->config);
+//            $this->obj_twitter->start_api();
+        }
+        if ($this->config->instagram_api) {
+            $this->obj_instagram = new InstagramShell();
+            $this->obj_instagram->setConfig($this->config);
+            $this->obj_instagram->start_api();
         }
     }
 

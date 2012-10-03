@@ -5,7 +5,7 @@
  *
  * @author Erce Erözbek <erce.erozbek@gmail.com>
  */
-abstract class AbstractShell extends CWebModule{
+abstract class AbstractPlugin{
 
     private $actions = array();
     private $errors = array();
