@@ -1,5 +1,5 @@
 <?php
-$social::start_view($config);
+$social->start_view();
 
 $cs = Yii::app()->clientScript;
 /* @var $cs CClientScript */
@@ -96,6 +96,7 @@ FacebookShell::set_meta("fb:app_id", $config->fb_app_id);
 //        'config: ' => $config,
         'fb user info: ' => $social->obj_facebook->get_user_info(),
         'Debug: ' => $social->debug()), 4, true);
-    $social::end_view($config);
     ?>
 </div>
+<?php
+$social->end_view();

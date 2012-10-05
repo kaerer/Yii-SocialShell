@@ -56,6 +56,14 @@ class FacebookShell extends AbstractPlugin {
 
         $this->config->fb_tab_url = $this->get_tabUrl();
 
+        if($this->config->fb_unique_id){
+            $this->config->fb_loggedin = true;
+        }
+
+        $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/facebook.js');
+        $cs = Yii::app()->getClientScript();
+        $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
+
         return $this->getApi();
     }
 
@@ -101,11 +109,11 @@ class FacebookShell extends AbstractPlugin {
     }
 
     private function get_accessTokenSession() {
-        return Yii::app()->session['fb_access_token'];
+        return self::getSession('fb_access_token');
     }
 
     private function set_accessTokenSession($access_token) {
-        Yii::app()->session['fb_access_token'] = $access_token;
+        self::setSession('fb_access_token', $access_token);
     }
 
     public function get_taken_permissions() {

@@ -114,10 +114,6 @@ class TestController extends Controller {
         ));
     }
 
-    public function actionTwitterCallback() {
-
-    }
-
     public function actionInstagram() {
 
         $this->layout = '//test/layout';
@@ -127,26 +123,20 @@ class TestController extends Controller {
 
         #- Set SocialShell Object
         $config = new SocialConfig();
+        $config->instagram_api = true;
         $config->in_key = '065f5749a0eb43d0bb1225825722ee35';
         $config->in_secret = '4389446b8b7d47a1823937538dd26555';
-
-        // Debug mod açıkken api jslerini çağırmaz
-        $config->instagram_api = true;
 
         #- Run SocialShell
         $social->load($config);
         $social->start_api();
 
-        $social->obj_instagram->callback();
+        $login_data = $social->obj_instagram->callback();
 
         $this->render('instagram', array(
             'social' => $social,
             'config' => $config
         ));
-    }
-
-    public function actionInstagramCallback() {
-
     }
 
     public function actionObject() {

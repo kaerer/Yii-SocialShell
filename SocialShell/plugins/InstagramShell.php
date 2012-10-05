@@ -5,7 +5,7 @@
  *
  * @author Erce Erözbek <erce.erozbek@gmail.com>
  *
- * @property object $api_object Instagram SDK Object
+ * @property Instagram $api_object Instagram SDK Object
  * @property string $access_token Instagram SDK access token
  *
  * @property array $user_info Instagram user data
@@ -50,15 +50,25 @@ class InstagramShell extends AbstractPlugin {
                 ));
 
         $this->set_accessTokenSession($this->get_accessToken());
+
+        $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/instagram.js');
+        $cs = Yii::app()->getClientScript();
+        $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
     }
 
     public function get_loginUrl($permissions = false) {
-        $permissions = $permissions ? $permissions : explode(',', (string)$this->config->in_permissions);
-        return $this->api_object->getLoginUrl($permissions);
+        $permissions = $permissions ? $permissions : array_map('trim', explode(',', (string)$this->config->in_permissions));
+        try {
+            return $this->api_object->getLoginUrl($permissions);
+        } catch (Exception $exc) {
+            $this->addError('get_loginUrl', $exc, __METHOD__);
+        }
+
+        return false;
     }
 
     public function get_logoutUrl() {
-        $this->addError('Api does not have logout function', $exc, __METHOD__);
+        $this->addError('get_logoutUrl', 'Api does not have logout function', __METHOD__);
         return false;
     }
 
@@ -87,19 +97,55 @@ class InstagramShell extends AbstractPlugin {
         Yii::app()->session['in_access_token'] = $access_token;
     }
 
-    public function callback($callback_params = FALSE) {
+    public function callback($callback_params = FALSE, $popup = true) {
         $callback_params = $callback_params ? $callback_params : Yii::app()->request->getParam('callback_params');
 //        if($callback_params){
 //            Yii::app()->session['in_callback_params'] = $callback_params;
 //        } else {
 //            $callback_params = Yii::app()->session['in_callback_params'];
 //        }
-        $data = false;
-        if ($callback_params) {
-            $data = $this->api_object->getOAuthToken($callback_params);
-            $this->api_object->setAccessToken($data);
+
+        $result = array(
+            'active' => false,
+            'data' => false,
+            'code' => false,
+            'error' => false,
+            'raw' => $callback_params,
+        );
+
+        $result['code'] = isset($callback_params['code']) ? $callback_params['code'] : false;
+        $result['error'] = isset($callback_params['error_reason']) ? $callback_params['error_reason'] : false;
+        if ($result['code']) {
+            $result['data'] = $this->api_object->getOAuthToken($callback_params['code']);
+            if (is_object($result['data']) && isset($result['data']->access_token)) {
+                self::setCookie('in_access_token', $result['data']->access_token);
+                $this->api_object->setAccessToken($result['data']);
+            }
+        } else {
+            $access_token = self::getCookie('in_access_token');
+            if ($access_token)
+                $this->api_object->setAccessToken($access_token);
         }
-        return $data;
+
+        if ($result['code'] || $result['error']) {
+            $result['active'] = true;
+        }
+
+        $user = $this->api_object->getUser();
+        if (is_object($user) && isset($user->meta) && $user->meta->code == '200') {
+            $this->config->in_loggedin = true;
+        }
+
+        if ($popup && $result['active']) {
+            echo '<script>
+                    window.opener.in_login_callback('.CJSON::encode($result).');
+                    window.opener.console.log('.CJSON::encode($result).');
+                </script>';
+            Yii::app()->end();
+        }
+
+
+        return $result;
     }
 
 }

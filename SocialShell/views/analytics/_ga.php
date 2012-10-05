@@ -1,9 +1,9 @@
 <?php
-/* @var $socialConfig SocialConfig */
-if (!YII_DEBUG && $socialConfig->ga_code): ?>
+/* @var $socialModule SocialShellModule */
+if (!YII_DEBUG && $socialModule->config->ga_code): ?>
     <script type="text/javascript">
         var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', '<?= $socialConfig->ga_code ?>']);
+        _gaq.push(['_setAccount', '<?= $socialModule->config->ga_code ?>']);
         _gaq.push(['_trackPageview']);
 
         (function() {

@@ -1,4 +1,4 @@
-<?php /* @var $socialConfig SocialConfig */?>
-<?php if ($socialConfig->instagram_api): ?>
+<?php /* @var $socialModule SocialShellModule */?>
+<?php if ($socialModule->config->instagram_api): ?>
     <!-- Instagram Api -->
 <?php endif; ?>

@@ -42,11 +42,11 @@ class SocialShellModule extends AbstractShell /* CWebModule */ {
     public $obj_instagram;
 
     public function init() {
-        $this->setImport(array(
-            'SocialShell.models.*',
-            'SocialShell.components.*',
-            'SocialShell.plugins.*',
-        ));
+//        $this->setImport(array(
+//            'SocialShell.models.*',
+//            'SocialShell.components.*',
+//            'SocialShell.plugins.*',
+//        ));
     }
 
     public function start_api() {
@@ -68,12 +68,12 @@ class SocialShellModule extends AbstractShell /* CWebModule */ {
         }
     }
 
-    public static function start_view(SocialConfig $config) {
-        return Yii::app()->controller->renderPartial('SocialShell.views.social._header', array('socialConfig' => $config));
+    public function start_view() {
+        return Yii::app()->controller->renderPartial('SocialShell.views.social._header', array('socialModule' => $this));
     }
 
-    public static function end_view(SocialConfig $config) {
-        return Yii::app()->controller->renderPartial('SocialShell.views.social._footer', array('socialConfig' => $config));
+    public function end_view() {
+        return Yii::app()->controller->renderPartial('SocialShell.views.social._footer', array('socialModule' => $this));
     }
 
 }

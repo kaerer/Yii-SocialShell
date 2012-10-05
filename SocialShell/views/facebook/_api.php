@@ -1,11 +1,11 @@
-<?php /* @var $socialConfig SocialConfig */ ?>
-<?php if ($socialConfig->facebook_api): ?>
+<?php /* @var $socialModule SocialShellModule */ ?>
+<?php if ($socialModule->config->facebook_api): ?>
     <!-- Facebook api -->
     <div id="fb-root"></div>
     <script type="text/javascript">
         window.fbAsyncInit = function() {
             FB.init({
-                appId      : '<?= $socialConfig->fb_app_id ?>', // App ID
+                appId      : '<?= $socialModule->config->fb_app_id ?>', // App ID
                 status     : true, // check login status
                 cookie     : true, // enable cookies to allow the server to access the session
                 xfbml      : true  // parse XFBML
@@ -53,7 +53,7 @@
             var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
             if (d.getElementById(id)) {return;}
             js = d.createElement('script'); js.id = id; js.async = true;
-            js.src = "//connect.facebook.net/<?= $socialConfig->locale ?>/all.js";
+            js.src = "//connect.facebook.net/<?= $socialModule->config->locale ?>/all.js";
             ref.parentNode.insertBefore(js, ref);
         }(document));
     </script>

@@ -104,6 +104,7 @@ abstract class SocialConfigBox extends stdClass {
     public $fb_tab_url = false;
     public $fb_tab_params = array();
     public $fb_canvas_url = false; //http://apps.facebook.com/sendekatil/
+    public $fb_loggedin = false;
 
     /*
      * ** Twitter Params **
@@ -125,7 +126,6 @@ abstract class SocialConfigBox extends stdClass {
     public $instagram_api = false;
     public $in_key = null;
     public $in_secret = null;
-
     public $in_callback = null;
 
     /**
@@ -137,11 +137,10 @@ abstract class SocialConfigBox extends stdClass {
      *
      * @var string
      */
-    public $in_permissions = 'basic, relations, likes, comments';
+    public $in_permissions = 'basic, relationships, likes, comments';
 
-//    public $in_token = null;
-//    public $in_token_secret = null;
     public $in_unique_id = false;
+    public $in_loggedin = false;
 
     /*
      * ** Share Params **

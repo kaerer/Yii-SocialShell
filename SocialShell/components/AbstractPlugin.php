@@ -5,7 +5,7 @@
  *
  * @author Erce Erözbek <erce.erozbek@gmail.com>
  */
-abstract class AbstractPlugin{
+abstract class AbstractPlugin {
 
     private $actions = array();
     private $errors = array();
@@ -101,6 +101,24 @@ abstract class AbstractPlugin{
 
     public function debug() {
         return array('IDS' => $this->getActions(), 'ERRORS' => $this->getErrors());
+    }
+
+    public static function setCookie($name, $value) {
+        $cookie = new CHttpCookie($name, $value);
+        $cookie->expire = time() + 604800; //60 * 60 * 24 * 7;
+        Yii::app()->request->cookies[$name] = $cookie;
+    }
+
+    public static function getCookie($name) {
+        return isset(Yii::app()->request->cookies[$name]) ? Yii::app()->request->cookies[$name]->value : false;
+    }
+
+    public static function getSession($name) {
+        return isset(Yii::app()->session[$name]) ? Yii::app()->session[$name] : false;
+    }
+
+    public static function setSession($name, $value) {
+        Yii::app()->session[$name] = $value;
     }
 
 }

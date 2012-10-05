@@ -1,5 +1,5 @@
 <?php
-$social::start_view($config);
+$social->start_view();
 
 $cs = Yii::app()->clientScript;
 /* @var $cs CClientScript */
@@ -53,6 +53,7 @@ $cs = Yii::app()->clientScript;
         'config: ' => $config,
 //        'tw api: ' => $social->obj_twitter->get_user_info(),
         'Debug: ' => $social->debug()), 4, true);
-    $social::end_view($config);
     ?>
 </div>
+<?php
+$social->end_view();
