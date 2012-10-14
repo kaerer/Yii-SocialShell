@@ -45,13 +45,13 @@ $cs = Yii::app()->clientScript;
     <?php
     $tag = 'okul';
     CVarDumper::dump(array(
-        'session: ' => Yii::app()->session->toArray(),
+//        'session: ' => Yii::app()->session->toArray(),
 //        'config: ' => $config,
         'config: ' => $social->obj_instagram->getConfig(),
-        'user: ' => $social->obj_instagram->getApi()->getUser(),
+//        'user: ' => $social->obj_instagram->getApi()->getUser(),
 //        'tab: ' => $social->config->in_loggedin ? $social->obj_instagram->getApi()->getTag($tag) : '',
 //        'tagMedia: ' => $social->config->in_loggedin ? $social->obj_instagram->getApi()->getTagMedia($tag) : '',
-        'userMedias: ' => $social->config->in_loggedin ? $social->obj_instagram->getApi()->getUserMedia() : '',
+//        'userMedias: ' => $social->config->in_loggedin ? $social->obj_instagram->getApi()->getUserMedia() : '',
 //        'Media X: ' => $medias = $social->config->in_loggedin ? $social->obj_instagram->getApi()->getMedia('563036563_2146846') : '',
 //        'cookies: ' => Yii::app()->request->cookies->toArray(),
         'Debug: ' => $social->debug()), 8, true);
@@ -60,12 +60,27 @@ $cs = Yii::app()->clientScript;
 <div class="images">
     <?php
     if ($social->config->in_loggedin) {
-        $medias = $social->obj_instagram->getApi()->getUserMedia();
-        foreach ($medias->data as $m) {
-            echo '<div style="float: left; margin: 0 5px 5px 0">';
-            echo '<img src="'.$m->images->thumbnail->url.'"/>';
-            echo '</div>';
-        }
+        $next_max_id = false;
+        $i = 0;
+        do {
+            if ($next_max_id)
+                $social->obj_instagram->getApi()->addParam('max_id', $next_max_id);
+            else
+                $social->obj_instagram->getApi()->cleanParam();
+            $medias = $social->obj_instagram->getApi()->getUserMedia('self', 30);
+
+            foreach ($medias->data as $m) {
+                $i++;
+                echo '<div style="float: left; margin: 0 5px 5px 0">';
+                echo '<img src="'.$m->images->thumbnail->url.'" alt="'.$i.'"/>';
+                echo '</div>';
+            }
+
+            echo '<hr>';
+            CVarDumper::dump($medias->pagination,5,1);
+            $next_max_id = (isset($medias->pagination) && isset($medias->pagination->next_max_id)) ? $medias->pagination->next_max_id : false;
+        } while ($next_max_id && $i < 300);
+            CVarDumper::dump(array($next_max_id, $i),5,1);
     }
     ?>
 </div>

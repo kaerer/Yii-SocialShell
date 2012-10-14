@@ -14,7 +14,7 @@
  */
 class FacebookShell extends AbstractPlugin {
 
-    const VERSION = 0.4;
+    const VERSION = 0.5;
 
     private $api_object;
     private $access_token;

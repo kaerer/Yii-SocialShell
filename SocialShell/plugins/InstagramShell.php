@@ -12,7 +12,7 @@
  */
 class InstagramShell extends AbstractPlugin {
 
-    const VERSION = 0.1;
+    const VERSION = 0.2;
 
     private $api_object;
     private $access_token;
