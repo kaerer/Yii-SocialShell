@@ -41,6 +41,8 @@
                     fb_unique_id = response.authResponse.userID;
 //                    access_token = response.authResponse.accessToken;
 //                    signed_request = response.authResponse.signedRequest;
+                    loginalready_callback();
+
                 }
                 //response.authResponse;
             }, true);

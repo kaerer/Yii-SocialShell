@@ -91,6 +91,12 @@ function fb_login_callback(response){
 }
 
 // Overwrite me !
+function loginalready_callback(response){
+    if(response.status === 'connected') {
+    }
+}
+
+// Overwrite me !
 function fb_liked(response){
     fb_page_liked = true;
 //    console.log('like' + page_liked);
