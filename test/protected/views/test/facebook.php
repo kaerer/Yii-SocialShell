@@ -14,7 +14,7 @@ FacebookShell::set_meta("fb:app_id", $config->fb_app_id);
 
 <script type="text/javascript">
     function fb_login_callback(response){
-        if(response.status == 'connected') {
+        if(response.status === 'connected') {
             fb_unique_id = response.userID;
             console.log(response);
             //            FB.api('/me', function(response) {

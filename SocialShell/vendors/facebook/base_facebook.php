@@ -367,20 +367,20 @@ abstract class BaseFacebook
       // In any event, we don't have an access token, so say so.
       return false;
     }
-  
+
     if (empty($access_token_response)) {
       return false;
     }
-      
+
     $response_params = array();
     parse_str($access_token_response, $response_params);
-    
+
     if (!isset($response_params['access_token'])) {
       return false;
     }
-    
+
     $this->destroySession();
-    
+
     $this->setPersistentData(
       'access_token', $response_params['access_token']
     );
@@ -1001,7 +1001,7 @@ abstract class BaseFacebook
     $expected_sig = hash_hmac('sha256', $payload,
                               $this->getAppSecret(), $raw = true);
     if ($sig !== $expected_sig) {
-      self::errorLog('Bad Signed JSON signature!');
+//      self::errorLog('Bad Signed JSON signature!');
       return null;
     }
 

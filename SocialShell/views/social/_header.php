@@ -24,6 +24,7 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
         var fb_loggedin = false;
         var fb_unique_id = false;
         var fb_signed_request = false;
+        var fb_access_token = false;
 <?php endif; ?>
 
 <?php if ($socialModule->config->twitter_api): ?>

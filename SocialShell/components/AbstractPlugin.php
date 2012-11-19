@@ -7,6 +7,7 @@
  */
 abstract class AbstractPlugin {
 
+    protected $api_object;
     private $actions = array();
     private $errors = array();
 
@@ -24,6 +25,14 @@ abstract class AbstractPlugin {
 
     abstract function start_api();
 
+    public function &getApi() {
+        return $this->api_object;
+    }
+
+    public function setApi(&$api_object) {
+        $this->api_object = & $api_object;
+    }
+
     /**
      * Get Config
      * @return SocialConfig
@@ -34,7 +43,7 @@ abstract class AbstractPlugin {
 
         $config = array();
         foreach ($this->config as $k => $v) {
-            if ($v)
+            if ($v !== null)
                 $config[$k] = $v;
         }
 

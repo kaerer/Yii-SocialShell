@@ -34,7 +34,7 @@ abstract class AbstractShell extends CWebModule{
 
         $config = array();
         foreach ($this->config as $k => $v) {
-            if ($v)
+            if ($v !== null)
                 $config[$k] = $v;
         }
 

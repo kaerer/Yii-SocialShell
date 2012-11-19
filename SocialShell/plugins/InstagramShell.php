@@ -14,13 +14,8 @@ class InstagramShell extends AbstractPlugin {
 
     const VERSION = 0.2;
 
-    private $api_object;
     private $access_token;
     private $user_info;
-
-    public function &getApi() {
-        return $this->api_object;
-    }
 
     public function setApi(Instagram &$api_object) {
         $this->api_object = & $api_object;
@@ -43,11 +38,13 @@ class InstagramShell extends AbstractPlugin {
             $this->config->in_callback = $this->config->domain_url.Yii::app()->createUrl('/callback');
         }
 
-        $this->api_object = new Instagram(array(
+        $api_object = new Instagram(array(
                     'apiKey' => $this->config->in_key,
                     'apiSecret' => $this->config->in_secret,
                     'apiCallback' => $this->config->in_callback
                 ));
+
+        $this->setApi($api_object);
 
         $this->set_accessTokenSession($this->get_accessToken());
 
@@ -59,7 +56,7 @@ class InstagramShell extends AbstractPlugin {
     public function get_loginUrl($permissions = false) {
         $permissions = $permissions ? $permissions : array_map('trim', explode(',', (string)$this->config->in_permissions));
         try {
-            return $this->api_object->getLoginUrl($permissions);
+            return $this->getApi()->getLoginUrl($permissions);
         } catch (Exception $exc) {
             $this->addError('get_loginUrl', $exc, __METHOD__);
         }
@@ -73,17 +70,17 @@ class InstagramShell extends AbstractPlugin {
     }
 
     public function get_accessToken() {
-        return $this->access_token ? $this->access_token : $this->api_object->getAccessToken();
+        return $this->access_token ? $this->access_token : $this->getApi()->getAccessToken();
     }
 
     public function set_accessToken($access_token = false, $renew = false) {
         if ($access_token) {
             (true === is_object($access_token)) ? $this->access_token = $access_token->access_token : $this->access_token = $access_token;
-            $this->api_object->setAccessToken($this->access_token);
+            $this->getApi()->setAccessToken($this->access_token);
             $this->set_accessTokenSession($this->access_token);
         } elseif ($renew && $this->get_accessTokenSession() !== false) {
             $this->access_token = $this->get_accessTokenSession();
-            $this->api_object->setAccessToken($this->access_token);
+            $this->getApi()->setAccessToken($this->access_token);
         } else {
             $this->addError('set_access_token', 'AccessToken is empty', __METHOD__);
         }
@@ -116,22 +113,22 @@ class InstagramShell extends AbstractPlugin {
         $result['code'] = isset($callback_params['code']) ? $callback_params['code'] : false;
         $result['error'] = isset($callback_params['error_reason']) ? $callback_params['error_reason'] : false;
         if ($result['code']) {
-            $result['data'] = $this->api_object->getOAuthToken($callback_params['code']);
+            $result['data'] = $this->getApi()->getOAuthToken($callback_params['code']);
             if (is_object($result['data']) && isset($result['data']->access_token)) {
                 self::setCookie('in_access_token', $result['data']->access_token);
-                $this->api_object->setAccessToken($result['data']);
+                $this->getApi()->setAccessToken($result['data']);
             }
         } else {
             $access_token = self::getCookie('in_access_token');
             if ($access_token)
-                $this->api_object->setAccessToken($access_token);
+                $this->getApi()->setAccessToken($access_token);
         }
 
         if ($result['code'] || $result['error']) {
             $result['active'] = true;
         }
 
-        $user = $this->api_object->getUser();
+        $user = $this->getApi()->getUser();
         if (is_object($user) && isset($user->meta) && $user->meta->code == '200') {
             $this->config->in_loggedin = true;
         }
@@ -149,4 +146,3 @@ class InstagramShell extends AbstractPlugin {
     }
 
 }
-

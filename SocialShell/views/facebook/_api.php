@@ -16,32 +16,32 @@
             //catch like event
             FB.Event.subscribe('edge.create', function(response) {
                 //like butona tıklanma anı
-                fb_liked(response);
+                fb_like_callback(response);
             });
 
             //catch unlike event
             FB.Event.subscribe('edge.remove', function(response) {
-                fb_unliked(response);
+                fb_unlike_callback(response);
             });
 
             //catch login and give permission event
 //            FB.Event.subscribe('auth.login', function(response) {
-//                window.location.reload();
+//                fb_login_callback();
 //            });
 
             //catch logout event
             FB.Event.subscribe('auth.logout', function(response) {
-                window.location.reload();
+                fb_logout_callback(response);
             });
 
             FB.getLoginStatus(function(response) {
                 response_global = response;
-                if(fb_unique_id && response.status == 'connected') {
+                if(fb_unique_id && response.status === 'connected') {
                     fb_loggedin = true;
                     fb_unique_id = response.authResponse.userID;
 //                    access_token = response.authResponse.accessToken;
 //                    signed_request = response.authResponse.signedRequest;
-                    loginalready_callback();
+                    fb_loginalready_callback();
 
                 }
                 //response.authResponse;

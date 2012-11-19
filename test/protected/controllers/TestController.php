@@ -11,7 +11,16 @@
  */
 class TestController extends Controller {
 
+    /**
+     * Social Shell Module instance
+     * @var SocialShellModule
+     */
     public $socialModule = null;
+
+    /**
+     * SocialConfig instance
+     * @var SocialConfig
+     */
     public $socialConfig = array();
 
     public function actionIndex() {
@@ -57,9 +66,14 @@ class TestController extends Controller {
         $this->socialConfig->share_url = $this->socialModule->obj_facebook->get_tabUrl();
         $this->socialConfig->share_image = $this->socialConfig->domain_url.'/images/socialshell/share.png';
 
+        FacebookShell::set_meta("fb:app_id", $this->socialConfig->fb_app_id);
+
+        /*
+         * For not struggling with config changes
+         */
         $this->render('facebook', array(
-            'social' => $this->socialModule,
-            'config' => $this->socialConfig
+            'social' => &$this->socialModule,
+            'config' => &$this->socialConfig
         ));
     }
 

@@ -58,20 +58,15 @@ function fb_check_login(){
 
 function fb_login(permissions){
     FB.login(function(response) {
-        //        console.log(response);
         fb_global_response = response;
+        fb_loggedin = false;
         if (response.authResponse) {
-//            accessToken = response.authResponse.accessToken;
-            if (response.status == 'connected') {
-                fb_loggedin = true;
-                fb_unique_id = response.authResponse.userID;
-//                signed_request = response.authResponse.signedRequest;
-            } else {
-                fb_loggedin = false;
+            fb_access_token   = response.authResponse.accessToken;
+            if (response.status === 'connected') {
+                fb_loggedin       = true;
+                fb_unique_id      = response.authResponse.userID;
+                fb_signed_request = response.authResponse.signedRequest;
             }
-        } else {
-            // user is not logged in
-            fb_loggedin = false;
         }
         fb_login_callback(response);
     }, {
@@ -91,19 +86,24 @@ function fb_login_callback(response){
 }
 
 // Overwrite me !
-function loginalready_callback(response){
+function fb_logout_callback(response){
+    window.location.reload();
+}
+
+// Overwrite me !
+function fb_loginalready_callback(response){
     if(response.status === 'connected') {
     }
 }
 
 // Overwrite me !
-function fb_liked(response){
+function fb_like_callback(response){
     fb_page_liked = true;
 //    console.log('like' + page_liked);
 }
 
 // Overwrite me !
-function fb_unliked(response){
+function fb_unliked_callback(response){
     fb_page_liked = false;
 //    console.log('unlike' + page_liked);
 }

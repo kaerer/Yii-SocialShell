@@ -9,7 +9,7 @@
         $cs->registerCoreScript('jquery');
 //        $cs->registerCoreScript('jquery.ui');
 //        $cs->registerCssFile(Yii::app()->clientScript->getCoreScriptUrl().'/jui/css/base/jquery-ui.css');
-//        $cs->registerScriptFile('/js/jmask/jquery.maskedinput-1.3.min.js');
+//        $cs->registerScriptFile('/js/jquery.maskedinput.min.js');
 //        $cs->registerScriptFile('/js/jquery.validate.min.js');
 //        $cs->registerScriptFile('/js/jquery.blockUI.js');
         ?>

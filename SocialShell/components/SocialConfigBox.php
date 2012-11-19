@@ -31,7 +31,7 @@ abstract class SocialConfigBox extends stdClass {
      *
      * @var string $ga_code
      */
-    public $ga_code = false;
+    public $ga_code = null;
 
     /*
      * ** Facebook Params **
@@ -72,8 +72,9 @@ abstract class SocialConfigBox extends stdClass {
      * ...
      *
      * @var string
+     * 'email, user_likes, user_interests, user_birthday, user_hometown, offline_access, publish_actions'
      */
-    public $fb_permissions = 'email, user_likes, user_interests, user_birthday, user_hometown, offline_access, publish_actions';
+    public $fb_permissions = null;
 
     /**
      * Facebook fanpage ID
@@ -85,13 +86,13 @@ abstract class SocialConfigBox extends stdClass {
      * Is the user admin of the current page
      * @var bool
      */
-    public $fb_page_admin = false;
+    public $fb_page_admin = null;
 
     /**
      * Is the current user fan of the current page
      * @var bool
      */
-    public $fb_page_liked = false; //public $is_fan =& #- for
+    public $fb_page_liked = null; //public $is_fan =& #- for
 
     /**
      * Fanpage name
@@ -100,11 +101,11 @@ abstract class SocialConfigBox extends stdClass {
     public $fb_page_name = 'BaseApps';
     public $fb_page_url = 'https://www.facebook.com/';
     public $fb_page_params = array();
-    public $fb_app_url = false;
-    public $fb_tab_url = false;
+    public $fb_app_url = null;
+    public $fb_tab_url = null;
     public $fb_tab_params = array();
-    public $fb_canvas_url = false; //http://apps.facebook.com/sendekatil/
-    public $fb_loggedin = false;
+    public $fb_canvas_url = null; //http://apps.facebook.com/sendekatil/
+    public $fb_loggedin = null;
 
     /*
      * ** Twitter Params **
@@ -139,13 +140,13 @@ abstract class SocialConfigBox extends stdClass {
      */
     public $in_permissions = 'basic, relationships, likes, comments';
 
-    public $in_unique_id = false;
-    public $in_loggedin = false;
+    public $in_unique_id = null;
+    public $in_loggedin = null;
 
     /*
      * ** Share Params **
      */
-    public $share_url = false;
-    public $share_image = false;
+    public $share_url = null;
+    public $share_image = null;
 
 }

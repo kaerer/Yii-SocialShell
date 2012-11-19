@@ -16,13 +16,8 @@ class FacebookShell extends AbstractPlugin {
 
     const VERSION = 0.5;
 
-    private $api_object;
     private $access_token;
     private $user_info;
-
-    public function &getApi() {
-        return $this->api_object;
-    }
 
     public function setApi(Facebook &$api_object) {
         $this->api_object = & $api_object;
@@ -41,12 +36,15 @@ class FacebookShell extends AbstractPlugin {
                 break;
         }
 
-        $this->api_object = new Facebook(array(
-                    'appId' => $this->config->fb_app_id,
-                    'secret' => $this->config->fb_app_secret,
-                    'fileUpload' => true,
-                    'cookie' => true,
+
+        $api_object = new Facebook(array(
+            'appId' => $this->config->fb_app_id,
+            'secret' => $this->config->fb_app_secret,
+            'fileUpload' => true,
+            'cookie' => true,
                 ));
+
+        $this->setApi($api_object);
 
         $this->set_accessTokenSession($this->get_accessToken());
         $this->process_pageParams();
@@ -56,7 +54,7 @@ class FacebookShell extends AbstractPlugin {
 
         $this->config->fb_tab_url = $this->get_tabUrl();
 
-        if($this->config->fb_unique_id){
+        if ($this->config->fb_unique_id) {
             $this->config->fb_loggedin = true;
         }
 
@@ -69,7 +67,7 @@ class FacebookShell extends AbstractPlugin {
 
     public function get_uniqueID() {
         if (!$this->config->fb_unique_id)
-            $this->config->fb_unique_id = $this->api_object->getUser();
+            $this->config->fb_unique_id = $this->getApi()->getUser();
         return $this->config->fb_unique_id;
     }
 
@@ -79,18 +77,18 @@ class FacebookShell extends AbstractPlugin {
             'redirect_uri' => $redirect_url ? $redirect_url : $this->config->share_url
         );
 
-        $loginUrl = $this->api_object->getLoginUrl($params);
+        $loginUrl = $this->getApi()->getLoginUrl($params);
         return $loginUrl;
     }
 
     public function get_logoutUrl() {
-        $loginUrl = $this->api_object->getLogoutUrl();
+        $loginUrl = $this->getApi()->getLogoutUrl();
         return $loginUrl;
     }
 
     public function get_accessToken() {
         if (empty($this->access_token))
-            $this->access_token = $this->api_object->getAccessToken();
+            $this->access_token = $this->getApi()->getAccessToken();
 
         return $this->access_token;
     }
@@ -98,22 +96,14 @@ class FacebookShell extends AbstractPlugin {
     public function set_accessToken($access_token = false, $renew = false) {
         if ($access_token) {
             (true === is_object($access_token)) ? $this->access_token = $access_token->access_token : $this->access_token = $access_token;
-            $this->api_object->setAccessToken($this->access_token);
+            $this->getApi()->setAccessToken($this->access_token);
             $this->set_accessTokenSession($this->access_token);
         } elseif ($renew && $this->get_accessTokenSession() !== false) {
             $this->access_token = $this->get_accessTokenSession();
-            $this->api_object->setAccessToken($this->access_token);
+            $this->getApi()->setAccessToken($this->access_token);
         } else {
             $this->addError('set_access_token', 'AccessToken is empty', __METHOD__);
         }
-    }
-
-    private function get_accessTokenSession() {
-        return self::getSession('fb_access_token');
-    }
-
-    private function set_accessTokenSession($access_token) {
-        self::setSession('fb_access_token', $access_token);
     }
 
     public function get_taken_permissions() {
@@ -175,7 +165,7 @@ class FacebookShell extends AbstractPlugin {
                 $attachment['caption'] = $caption;
             if ($picture)
                 $attachment['picture'] = $picture;
-            $result = $this->api_object->api('/'.($unique_id ? $unique_id : 'me').'/feed/', 'POST', $attachment);
+            $result = $this->getApi()->api('/'.($unique_id ? $unique_id : 'me').'/feed/', 'POST', $attachment);
             $this->addAction('share', $result, __METHOD__);
             return $result;
         } catch (FacebookApiException $exc) {
@@ -200,7 +190,7 @@ class FacebookShell extends AbstractPlugin {
 
     public function get_object($object_path) {
         try {
-            $results = $this->api_object->api($object_path); //.'?access_token='.$this->access_token()
+            $results = $this->getApi()->api($object_path); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
             $this->addError('data', $exc, __METHOD__);
         } catch (Exception $exc) {
@@ -231,9 +221,9 @@ class FacebookShell extends AbstractPlugin {
      */
     public function post_object($object_path, $object_params = array(), $method = 'POST') {
         try {
-            if (!isset($object_params['accessToken']))
-                $object_params['accessToken'] = $this->get_accessToken();
-            $results = $this->api_object->api($object_path, $method, $object_params); //.'?access_token='.$this->access_token()
+//            if (!isset($object_params['accessToken']))
+//                $object_params['accessToken'] = $this->get_accessToken();
+            $results = $this->getApi()->api($object_path, $method, $object_params); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
             $this->addError('data', $exc, __METHOD__);
         } catch (Exception $exc) {
@@ -283,7 +273,7 @@ class FacebookShell extends AbstractPlugin {
 
         try {
             $album_uid = false;
-            $albums = $this->api_object->api('/me/albums');
+            $albums = $this->getApi()->api('/me/albums');
             if (is_array($albums['data'])) {
                 foreach ($albums['data'] as $a) {
                     if ($a['name'] == $album_details['name']) {
@@ -302,7 +292,7 @@ class FacebookShell extends AbstractPlugin {
         if (!$album_uid) {
             try {
                 #- Album yarat
-                $create_album = $this->api_object->api('/me/albums', 'POST', $album_details);
+                $create_album = $this->getApi()->api('/me/albums', 'POST', $album_details);
                 if ($create_album) {
                     $album_uid = $create_album['id'];
                     $this->addAction('create_album', $album_uid, __METHOD__);
@@ -322,11 +312,11 @@ class FacebookShell extends AbstractPlugin {
                 'image' => '@'.realpath($photo_params['file']),
                 'message' => $photo_params['description'],
             );
-            $photo = $this->api_object->api('/'.$album_uid.'/photos', 'POST', $photo_details);
+            $photo = $this->getApi()->api('/'.$album_uid.'/photos', 'POST', $photo_details);
             if ($photo && isset($photo['id'])) {
                 //TODO:: gelen $photo değişkeni içinde link var mı acep? tekrar kontrol niheye
                 $this->addAction('create_photo', $photo['id'], __METHOD__);
-                $photo_info = $this->api_object->api('/'.$photo['id']);
+                $photo_info = $this->getApi()->api('/'.$photo['id']);
                 if ($photo_info) {
                     $this->ids['upload_photo'] = $photo_info;
                     $result = $photo_info['link'];
@@ -377,7 +367,6 @@ class FacebookShell extends AbstractPlugin {
     public function process_pageParams() {
 
         $data = $this->parse_signed_request();
-
         if (is_array($data)) {
             foreach ($data as $k => $v) {
                 $this->config->fb_page_params[$k] = $v;
@@ -400,7 +389,6 @@ class FacebookShell extends AbstractPlugin {
                 parse_str($data['app_data'], $this->config->fb_tab_params);
             }
         }
-
         return $data;
     }
 
@@ -412,8 +400,11 @@ class FacebookShell extends AbstractPlugin {
      * @return string
      */
     public static function get_pictureUrl($unique_id, $size = 'large') {
-        $url = 'https://graph.facebook.com/'.$unique_id.'/picture?type='.$size;
-        return $url;
+        return 'https://graph.facebook.com/'.$unique_id.'/picture?type='.$size;
+    }
+
+    public static function get_profileUrl($unique_id) {
+        return 'https://www.facebook.com/profile.php?id='.$unique_id;
     }
 
     public static function get_likeButton($url, $width = '100') {
@@ -427,6 +418,16 @@ class FacebookShell extends AbstractPlugin {
 
     public static function set_meta($property, $value) {
         Yii::app()->clientScript->registerMetaTag($value, null, null, array('property' => $property));
+    }
+
+    /* System functions */
+
+    private function get_accessTokenSession() {
+        return self::getSession('fb_access_token');
+    }
+
+    private function set_accessTokenSession($access_token) {
+        self::setSession('fb_access_token', $access_token);
     }
 
     private function parse_signed_request() {
@@ -465,4 +466,3 @@ class FacebookShell extends AbstractPlugin {
     }
 
 }
-
