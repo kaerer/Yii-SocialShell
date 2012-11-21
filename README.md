@@ -1,11 +1,9 @@
 Yii-SocialShell
 ===============
+Yii module for Social Platforms such as; Facebook, Twitter, Instagram
 
-Yii module for Facebook, Twitter, Instagram
+[Usage Wiki](https://github.com/kaerer/Yii-SocialShell/wiki/installing-Yii-SocialShell-Module)
 
-Check wiki and use the files in test folder
-
-Yii Module - SocialShell
-
+TODO LIST: 
 5.  twitter plugini yazılacak
 7.  javascriptler modul haline getirilecek ve callbackler ayarlanacak
