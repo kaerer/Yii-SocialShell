@@ -23,36 +23,42 @@ class FacebookShell extends AbstractPlugin {
         $this->api_object = & $api_object;
     }
 
-    public function start_api() {
+    public function start_api($silent_mode = false) {
         Yii::import('SocialShell.vendors.facebook.Facebook');
         self::set_header();
 
-        switch (true) {
-            case!$this->config->fb_app_id:
-                throw new Exception('AppID not defined');
-                break;
-            case!$this->config->fb_app_secret:
-                throw new Exception('AppSecret not defined');
-                break;
+        if (!$silent_mode) {
+            switch (true) {
+                case!($this->config instanceof SocialConfigBox):
+                    throw new Exception('Neet to be in facebook');
+                    break;
+                case!$this->config->fb_app_id:
+                    throw new Exception('AppID not defined');
+                    break;
+                case!$this->config->fb_app_secret:
+                    throw new Exception('AppSecret not defined');
+                    break;
+            }
+
+            $api_object = new Facebook(array(
+                        'appId' => $this->config->fb_app_id,
+                        'secret' => $this->config->fb_app_secret,
+                        'fileUpload' => true,
+                        'cookie' => true,
+                    ));
+
+            $this->setApi($api_object);
+
+            $this->set_accessTokenSession($this->get_accessToken());
         }
 
-
-        $api_object = new Facebook(array(
-            'appId' => $this->config->fb_app_id,
-            'secret' => $this->config->fb_app_secret,
-            'fileUpload' => true,
-            'cookie' => true,
-                ));
-
-        $this->setApi($api_object);
-
-        $this->set_accessTokenSession($this->get_accessToken());
-        $this->process_pageParams();
+        $this->process_pageParams($silent_mode);
 //        $this->unique = $this->obj->getUser();
 
-        $this->config->fb_page_url = 'https://www.facebook.com/'.$this->config->fb_page_name;
-
-        $this->config->fb_tab_url = $this->get_tabUrl();
+        if ($this->config->fb_page_id) {
+            $this->config->fb_page_url = $this->get_pageUrl(); //'https://www.facebook.com/'.$this->config->fb_page_name;
+            $this->config->fb_tab_url = $this->get_tabUrl();
+        }
 
         if ($this->config->fb_unique_id) {
             $this->config->fb_loggedin = true;
@@ -345,6 +351,13 @@ class FacebookShell extends AbstractPlugin {
     }
 
     public function get_pageUrl() {
+        if (!$this->config->fb_page_url) {
+            if ($this->config->fb_page_name) {
+                $this->config->fb_page_url = 'https://www.facebook.com/'.$this->config->fb_page_name;
+            } else {
+                $this->config->fb_page_url = self::get_pageUrlByID($this->config->fb_page_id);
+            }
+        }
         return $this->config->fb_page_url;
     }
 
@@ -364,9 +377,8 @@ class FacebookShell extends AbstractPlugin {
         return (bool)$this->config->fb_page_liked;
     }
 
-    public function process_pageParams() {
-
-        $data = $this->parse_signed_request();
+    public function process_pageParams($silent_mode = false) {
+        $data = self::parse_signed_request($silent_mode, $this->config->fb_app_secret);
         if (is_array($data)) {
             foreach ($data as $k => $v) {
                 $this->config->fb_page_params[$k] = $v;
@@ -407,6 +419,14 @@ class FacebookShell extends AbstractPlugin {
         return 'https://www.facebook.com/profile.php?id='.$unique_id;
     }
 
+    public static function get_pageUrlByID($page_id = 0, $app_id = false) {
+        return "https://www.facebook.com/pages/-/".$page_id.($app_id ? "?sk=app_".$app_id : '');
+    }
+
+    public static function get_addPageUrl($app_id = 0) {
+        return 'https://www.facebook.com/dialog/pagetab?app_id='.$app_id.'&next=http://facebook.com';
+    }
+
     public static function get_likeButton($url, $width = '100') {
         return '<div class="fb-like" data-href="'.$url.'" data-send="false" data-layout="button_count" data-width="'.$width.'" data-show-faces="false"></div>';
     }
@@ -430,7 +450,7 @@ class FacebookShell extends AbstractPlugin {
         self::setSession('fb_access_token', $access_token);
     }
 
-    private function parse_signed_request() {
+    public static function parse_signed_request($silent_mode = false, $fb_app_secret = false) {
 
         $signed_request = Yii::app()->request->getParam('signed_request');
 
@@ -441,8 +461,8 @@ class FacebookShell extends AbstractPlugin {
         list($encoded_sig, $payload) = explode('.', $signed_request, 2);
 
         #- decode the data
-        $sig = $this->base64_url_decode($encoded_sig);
-        $data = json_decode($this->base64_url_decode($payload), true);
+        $sig = self::base64_url_decode($encoded_sig);
+        $data = json_decode(self::base64_url_decode($payload), true);
 
         if (strtoupper($data['algorithm']) !== 'HMAC-SHA256') {
             //'Unknown algorithm. Expected HMAC-SHA256';
@@ -450,18 +470,21 @@ class FacebookShell extends AbstractPlugin {
             return false;
         }
 
-        #- check sig
-        $expected_sig = hash_hmac('sha256', $payload, $this->config->fb_app_secret, $raw = true);
+        if ($fb_app_secret) {
+            #- check sig
+            $expected_sig = hash_hmac('sha256', $payload, $fb_app_secret, $raw = true);
 
-        if ($sig !== $expected_sig) {
-            $this->addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($this->config->fb_app_secret)), __METHOD__);
-            return false;
+            if ($sig !== $expected_sig) {
+                $this->addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($fb_app_secret)), __METHOD__);
+                if (!$silent_mode)
+                    return false;
+            }
         }
 
         return $data;
     }
 
-    private function base64_url_decode($input) {
+    private static function base64_url_decode($input) {
         return base64_decode(strtr($input, '-_', '+/'));
     }
 

@@ -53,7 +53,7 @@ abstract class AbstractShell extends CWebModule{
      * Load Config
      * @param SocialConfig $config
      */
-    public function load(SocialConfig &$config) {
+    public function loadConfig(SocialConfig &$config) {
         $this->setConfig($config);
         $this->config->configure();
 

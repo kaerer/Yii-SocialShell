@@ -14,7 +14,6 @@ class TwitterShell extends AbstractPlugin {
 
     const VERSION = 0.0;
 
-    private $api_object;
     public $access_token;
 
     public function &getApi() {
@@ -25,9 +24,9 @@ class TwitterShell extends AbstractPlugin {
         $this->api_object = & $api_object;
     }
 
-    public function start_api() {
-        Yii::import('SocialShell.vendors.twitter.tmhOAuth');
-        Yii::import('SocialShell.vendors.twitter.tmhUtilities');
+    public function start_api($silent_mode = false) {
+//        Yii::import('SocialShell.vendors.twitter.tmhOAuth');
+//        Yii::import('SocialShell.vendors.twitter.tmhUtilities');
 
 //        $this->api_object = new Facebook(array(
 //                    'appId' => $this->config->fb_app_id,
@@ -36,8 +35,11 @@ class TwitterShell extends AbstractPlugin {
 //                    'cookie' => true,
 //                ));
 
+        $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/twitter.js');
+        $cs = Yii::app()->getClientScript();
+        $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
+
         return $this->getApi();
     }
 
 }
-

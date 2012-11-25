@@ -98,8 +98,8 @@ abstract class SocialConfigBox extends stdClass {
      * Fanpage name
      * @var string
      */
-    public $fb_page_name = 'BaseApps';
-    public $fb_page_url = 'https://www.facebook.com/';
+    public $fb_page_name = null;
+    public $fb_page_url = null;
     public $fb_page_params = array();
     public $fb_app_url = null;
     public $fb_tab_url = null;

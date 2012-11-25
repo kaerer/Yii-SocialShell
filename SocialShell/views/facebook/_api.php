@@ -35,7 +35,7 @@
             });
 
             FB.getLoginStatus(function(response) {
-                response_global = response;
+                fb_global_response = response;
                 if(fb_unique_id && response.status === 'connected') {
                     fb_loggedin = true;
                     fb_unique_id = response.authResponse.userID;
@@ -46,8 +46,6 @@
                 }
                 //response.authResponse;
             }, true);
-
-            // Additional initialization code here
         };
 
         // Load the SDK Asynchronously

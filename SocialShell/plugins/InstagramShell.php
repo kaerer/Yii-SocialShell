@@ -21,32 +21,34 @@ class InstagramShell extends AbstractPlugin {
         $this->api_object = & $api_object;
     }
 
-    public function start_api() {
+    public function start_api($silent_mode = false) {
         Yii::import('SocialShell.vendors.instagram.Instagram');
+        $r = Yii::app()->request;
 
-        switch (true) {
-            case (!$this->config->in_key):
-                $this->addError('start_api', 'AppID not defined', __METHOD__);
-                break;
-            case (!$this->config->in_secret):
-                $this->addError('start_api', 'Api does not have logout function', __METHOD__);
-                break;
+        if (!$silent_mode) {
+            switch (true) {
+                case (!$this->config->in_key):
+                    $this->addError('start_api', 'AppID not defined', __METHOD__);
+                    break;
+                case (!$this->config->in_secret):
+                    $this->addError('start_api', 'Api does not have logout function', __METHOD__);
+                    break;
+            }
+            $api_object = new Instagram(array(
+                        'apiKey' => $this->config->in_key,
+                        'apiSecret' => $this->config->in_secret,
+                        'apiCallback' => $this->config->in_callback
+                    ));
+
+            $this->setApi($api_object);
+
+            $this->set_accessTokenSession($this->get_accessToken());
+
+            if (!$this->config->in_callback) {
+                Yii::app()->session['tmp_callback_target'] = $r->getPathInfo();
+                $this->config->in_callback = $this->config->domain_url.'/callback';
+            }
         }
-
-        if (!$this->config->in_callback) {
-            Yii::app()->session['tmp_callback_target'] = Yii::app()->request->getPathInfo();
-            $this->config->in_callback = $this->config->domain_url.Yii::app()->createUrl('/callback');
-        }
-
-        $api_object = new Instagram(array(
-                    'apiKey' => $this->config->in_key,
-                    'apiSecret' => $this->config->in_secret,
-                    'apiCallback' => $this->config->in_callback
-                ));
-
-        $this->setApi($api_object);
-
-        $this->set_accessTokenSession($this->get_accessToken());
 
         $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/instagram.js');
         $cs = Yii::app()->getClientScript();
@@ -134,13 +136,12 @@ class InstagramShell extends AbstractPlugin {
         }
 
         if ($popup && $result['active']) {
-            echo '<script>
-                    window.opener.in_login_callback('.CJSON::encode($result).');
-                    window.opener.console.log('.CJSON::encode($result).');
-                </script>';
+            echo '<script>';
+            echo 'window.opener.in_login_callback('.CJSON::encode($result).');';
+            echo 'window.opener.console.log('.CJSON::encode($result).');';
+            echo '</script>';
             Yii::app()->end();
         }
-
 
         return $result;
     }

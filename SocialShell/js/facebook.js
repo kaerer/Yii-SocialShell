@@ -1,4 +1,5 @@
 var fb_global_response;
+
 function fb_feed(link_text, caption, description, image, link, textarea){
 
     if(textarea === undefined) textarea = '';
@@ -47,7 +48,7 @@ function fb_notification_callback(response){
 }
 
 function fb_check_login(){
-    if(fb_unique_id && loggedin) {
+    if(fb_unique_id && fb_loggedin) {
         fb_login_callback(fb_global_response);
         return true;
     } else {
@@ -78,7 +79,7 @@ function fb_login(permissions){
 
 // Overwrite me !
 function fb_login_callback(response){
-    if(response.status == 'connected') {
+    if(response && response.status === 'connected') {
         alert('İzinler alındı');
     } else {
         alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
@@ -92,7 +93,7 @@ function fb_logout_callback(response){
 
 // Overwrite me !
 function fb_loginalready_callback(response){
-    if(response.status === 'connected') {
+    if(response && response.status === 'connected') {
     }
 }
 
