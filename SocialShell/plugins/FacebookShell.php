@@ -338,22 +338,22 @@ class FacebookShell extends AbstractPlugin {
     }
 
     public function get_addingAppToTabUrl() {
-        return 'https://www.facebook.com/dialog/pagetab?app_id='.$this->config->fb_app_id.'&next='.$this->config->domain_url;
+        return 'https://www.facebook.com/dialog/pagetab?app_id='.$this->config->fb_app_id.'&next='.$this->get_tabUrl();
     }
 
     public function get_tabUrl($params = false) {
         if (!$this->config->fb_tab_url) {
-            $this->config->fb_tab_url = $this->config->fb_page_url.'/app_'.$this->config->fb_app_id;
+            $this->config->fb_tab_url = $this->get_pageUrl().'?sk=app_'.$this->config->fb_app_id;
         }
         $str_params = is_array($params) ? 'app_data='.urlencode(http_build_query($params)) : '';
 //        return "https://www.facebook.com/pages/-/".$this->config->fb_page_id."?sk=app_".$this->config->fb_app_id.($str_params ? '&'.$str_params : '');
-        return $this->config->fb_tab_url.($str_params ? '?'.$str_params : '');
+        return $this->config->fb_tab_url.($str_params ? '&'.$str_params : '');
     }
 
     public function get_pageUrl() {
         if (!$this->config->fb_page_url) {
             if ($this->config->fb_page_name) {
-                $this->config->fb_page_url = 'https://www.facebook.com/'.$this->config->fb_page_name;
+                $this->config->fb_page_url = self::get_pageUrlByPageName($this->config->fb_page_name);
             } else {
                 $this->config->fb_page_url = self::get_pageUrlByID($this->config->fb_page_id);
             }
@@ -383,7 +383,7 @@ class FacebookShell extends AbstractPlugin {
             foreach ($data as $k => $v) {
                 $this->config->fb_page_params[$k] = $v;
             }
-
+//            CVarDumper::dump($data);
             if (isset($data['page'])) {
                 $this->config->fb_page_id = $data['page']['id'];
                 $this->config->fb_page_admin = $data['page']['admin'];
@@ -423,8 +423,12 @@ class FacebookShell extends AbstractPlugin {
         return "https://www.facebook.com/pages/-/".$page_id.($app_id ? "?sk=app_".$app_id : '');
     }
 
-    public static function get_addPageUrl($app_id = 0) {
-        return 'https://www.facebook.com/dialog/pagetab?app_id='.$app_id.'&next=http://facebook.com';
+    public static function get_pageUrlByPageName($page_screen_name = 0, $app_id = false) {
+        return "https://www.facebook.com/".$page_screen_name.($app_id ? "?sk=app_".$app_id : '');
+    }
+
+    public static function get_addPageUrl($app_id = 0, $next_target = false) {
+        return 'https://www.facebook.com/dialog/pagetab?app_id='.$app_id.'&next='.($next_target ? $next_target : 'http://facebook.com');
     }
 
     public static function get_likeButton($url, $width = '100') {
@@ -455,7 +459,7 @@ class FacebookShell extends AbstractPlugin {
         $signed_request = Yii::app()->request->getParam('signed_request');
 
         if (empty($signed_request) || !$signed_request) {
-            $this->addError('parse', 'signed_request is needed!', __METHOD__);
+//            $this->addError('parse', 'signed_request is needed!', __METHOD__);
             return false;
         }
         list($encoded_sig, $payload) = explode('.', $signed_request, 2);
@@ -466,7 +470,7 @@ class FacebookShell extends AbstractPlugin {
 
         if (strtoupper($data['algorithm']) !== 'HMAC-SHA256') {
             //'Unknown algorithm. Expected HMAC-SHA256';
-            $this->addError('algorithm_notSupported', array('algorithm' => strtoupper($data['algorithm'])), __METHOD__);
+//            $this->addError('algorithm_notSupported', array('algorithm' => strtoupper($data['algorithm'])), __METHOD__);
             return false;
         }
 
@@ -475,7 +479,7 @@ class FacebookShell extends AbstractPlugin {
             $expected_sig = hash_hmac('sha256', $payload, $fb_app_secret, $raw = true);
 
             if ($sig !== $expected_sig) {
-                $this->addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($fb_app_secret)), __METHOD__);
+//                $this->addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($fb_app_secret)), __METHOD__);
                 if (!$silent_mode)
                     return false;
             }

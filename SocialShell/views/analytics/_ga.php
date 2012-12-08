@@ -1,6 +1,7 @@
 <?php
 /* @var $socialModule SocialShellModule */
-if (!YII_DEBUG && $socialModule->config->ga_code): ?>
+if (!YII_DEBUG && $socialModule->config->ga_code):
+    ?>
     <script type="text/javascript">
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', '<?= $socialModule->config->ga_code ?>']);

@@ -25,6 +25,10 @@ abstract class AbstractPlugin {
 
     abstract function start_api();
 
+    /**
+     *
+     * @return $this->api_object
+     */
     public function &getApi() {
         return $this->api_object;
     }

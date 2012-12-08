@@ -59,16 +59,7 @@ function fb_check_login(){
 
 function fb_login(permissions){
     FB.login(function(response) {
-        fb_global_response = response;
-        fb_loggedin = false;
-        if (response.authResponse) {
-            fb_access_token   = response.authResponse.accessToken;
-            if (response.status === 'connected') {
-                fb_loggedin       = true;
-                fb_unique_id      = response.authResponse.userID;
-                fb_signed_request = response.authResponse.signedRequest;
-            }
-        }
+        fb_response_parser(response);
         fb_login_callback(response);
     }, {
         scope:(permissions ? permissions : fb_permissions)
@@ -93,7 +84,19 @@ function fb_logout_callback(response){
 
 // Overwrite me !
 function fb_loginalready_callback(response){
-    if(response && response.status === 'connected') {
+    fb_response_parser(response);
+}
+
+function fb_response_parser(response){
+    fb_global_response = response;
+    fb_loggedin = false;
+    if (typeof response.authResponse !== 'undefined') {
+        fb_access_token   = response.authResponse.accessToken;
+        if (response.status === 'connected') {
+            fb_loggedin       = true;
+            fb_unique_id      = response.authResponse.userID;
+            fb_signed_request = response.authResponse.signedRequest;
+        }
     }
 }
 

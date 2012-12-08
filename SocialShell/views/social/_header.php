@@ -16,8 +16,8 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
     var shareImage = '<?php echo $socialModule->config->share_image; ?>';
 
 <?php if ($socialModule->config->facebook_api): ?>
-        var fb_pageUrl = '<?php echo $socialModule->config->fb_page_url; ?>';
-        var fb_tabUrl = '<?php echo $socialModule->config->fb_tab_url; ?>';
+        var fb_pageUrl = '<?php echo $socialModule->obj_facebook->get_pageUrl(); ?>';
+        var fb_tabUrl = '<?php echo $socialModule->obj_facebook->get_tabUrl(); ?>';
         var fb_page_liked = <?php echo $socialModule->config->fb_page_liked ? 'true' : 'false'; ?>;
         var fb_permissions = '<?php echo $socialModule->config->fb_permissions; ?>';
         var fb_takenperms = false;
@@ -27,10 +27,10 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
         var fb_access_token = false;
 <?php endif; ?>
 
-<?php /*if ($socialModule->config->twitter_api): ?>
-        var tw_permissions = '<?php echo $socialModule->config->tw_permissions; ?>';
-        var tw_loggedin = false;
-<?php endif;*/ ?>
+<?php /* if ($socialModule->config->twitter_api): ?>
+  var tw_permissions = '<?php echo $socialModule->config->tw_permissions; ?>';
+  var tw_loggedin = false;
+  <?php endif; */ ?>
 
 <?php if ($socialModule->config->instagram_api): ?>
         var in_login_url = '<?php echo $socialModule->obj_instagram->get_loginUrl(); ?>';

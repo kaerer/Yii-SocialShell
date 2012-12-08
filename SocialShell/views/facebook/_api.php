@@ -4,12 +4,20 @@
     <div id="fb-root"></div>
     <script type="text/javascript">
         window.fbAsyncInit = function() {
-            FB.init({
-                appId      : '<?= $socialModule->config->fb_app_id ?>', // App ID
-                status     : true, // check login status
-                cookie     : true, // enable cookies to allow the server to access the session
-                xfbml      : true  // parse XFBML
-            });
+    <?php if ($socialModule->config->fb_app_id): ?>
+                FB.init({
+                    appId      : '<?= $socialModule->config->fb_app_id ?>', // App ID
+                    status     : true, // check login status
+                    cookie     : true, // enable cookies to allow the server to access the session
+                    xfbml      : true  // parse XFBML
+                });
+    <?php else: ?>
+                FB.init({
+                    status     : true, // check login status
+                    cookie     : true, // enable cookies to allow the server to access the session
+                    xfbml      : true  // parse XFBML
+                });
+    <?php endif; ?>
 
             FB.Canvas.setAutoGrow(500);
 
@@ -25,9 +33,9 @@
             });
 
             //catch login and give permission event
-//            FB.Event.subscribe('auth.login', function(response) {
-//                fb_login_callback();
-//            });
+            //            FB.Event.subscribe('auth.login', function(response) {
+            //                fb_login_callback();
+            //            });
 
             //catch logout event
             FB.Event.subscribe('auth.logout', function(response) {
@@ -35,15 +43,7 @@
             });
 
             FB.getLoginStatus(function(response) {
-                fb_global_response = response;
-                if(fb_unique_id && response.status === 'connected') {
-                    fb_loggedin = true;
-                    fb_unique_id = response.authResponse.userID;
-//                    access_token = response.authResponse.accessToken;
-//                    signed_request = response.authResponse.signedRequest;
-                    fb_loginalready_callback();
-
-                }
+                fb_loginalready_callback(response);
                 //response.authResponse;
             }, true);
         };
