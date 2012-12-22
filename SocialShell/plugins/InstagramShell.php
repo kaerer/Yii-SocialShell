@@ -24,6 +24,10 @@ class InstagramShell extends AbstractPlugin {
     public function start_api($silent_mode = false) {
         Yii::import('SocialShell.vendors.instagram.Instagram');
         $r = Yii::app()->request;
+        if (!$this->config->in_callback) {
+            Yii::app()->session['tmp_callback_target'] = $r->getPathInfo();
+            $this->config->in_callback = $this->config->domain_url.'/callback';
+        }
 
         if (!$silent_mode) {
             switch (true) {
@@ -44,10 +48,6 @@ class InstagramShell extends AbstractPlugin {
 
             $this->set_accessTokenSession($this->get_accessToken());
 
-            if (!$this->config->in_callback) {
-                Yii::app()->session['tmp_callback_target'] = $r->getPathInfo();
-                $this->config->in_callback = $this->config->domain_url.'/callback';
-            }
         }
 
         $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/instagram.js');
@@ -55,6 +55,11 @@ class InstagramShell extends AbstractPlugin {
         $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
     }
 
+    /**
+     *
+     * @param type basic, comments, relationships, likes
+     * @return mixed url / false
+     */
     public function get_loginUrl($permissions = false) {
         $permissions = $permissions ? $permissions : array_map('trim', explode(',', (string)$this->config->in_permissions));
         try {

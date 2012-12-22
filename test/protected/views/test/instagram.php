@@ -8,6 +8,9 @@ $cs = Yii::app()->clientScript;
 
 //CVarDumper::dump($_POST, 4, 1);
 //CVarDumper::dump($_FILES, 4, 1);
+
+$r = Yii::app()->request;
+//echo $r->getPathInfo();
 ?>
 
 <script type="text/javascript">
@@ -35,7 +38,7 @@ $cs = Yii::app()->clientScript;
     Ugh!
 </div>
 <div class="link">
-    <?php echo CHtml::link('Login', $social->obj_instagram->get_loginUrl(), array('id' => 'login')); ?>
+    <?php echo CHtml::link('Login', $social->obj_instagram->get_loginUrl('basic,likes'), array('id' => 'login')); ?>
 </div>
 <div class="share">
     <a class="btn share-btn-friend"></a>
@@ -43,11 +46,11 @@ $cs = Yii::app()->clientScript;
 </div>
 <div class="info">
     <?php
-    $tag = 'okul';
+    $tag = 'upskirt';
     CVarDumper::dump(array(
 //        'session: ' => Yii::app()->session->toArray(),
 //        'config: ' => $config,
-        'config: ' => $social->obj_instagram->getConfig(),
+//        'config: ' => $social->obj_instagram->getConfig(),
 //        'user: ' => $social->obj_instagram->getApi()->getUser(),
 //        'tab: ' => $social->config->in_loggedin ? $social->obj_instagram->getApi()->getTag($tag) : '',
 //        'tagMedia: ' => $social->config->in_loggedin ? $social->obj_instagram->getApi()->getTagMedia($tag) : '',
@@ -58,7 +61,9 @@ $cs = Yii::app()->clientScript;
     ?>
 </div>
 <div class="images">
+
     <?php
+    $tag = 'tanker';
     if ($social->config->in_loggedin) {
         $next_max_id = false;
         $i = 0;
@@ -67,6 +72,7 @@ $cs = Yii::app()->clientScript;
                 $social->obj_instagram->getApi()->addParam('max_id', $next_max_id);
             else
                 $social->obj_instagram->getApi()->cleanParam();
+
             $medias = $social->obj_instagram->getApi()->getUserMedia('self', 30);
 
             foreach ($medias->data as $m) {
@@ -74,13 +80,31 @@ $cs = Yii::app()->clientScript;
                 echo '<div style="float: left; margin: 0 5px 5px 0">';
                 echo '<img src="'.$m->images->thumbnail->url.'" alt="'.$i.'"/>';
                 echo '</div>';
+                $tmp = $m;
             }
+            CVarDumper::dump($tmp, 5, 1);
 
             echo '<hr>';
-            CVarDumper::dump($medias->pagination,5,1);
+//            CVarDumper::dump($medias->pagination, 5, 1);
             $next_max_id = (isset($medias->pagination) && isset($medias->pagination->next_max_id)) ? $medias->pagination->next_max_id : false;
         } while ($next_max_id && $i < 300);
-            CVarDumper::dump(array($next_max_id, $i),5,1);
+
+        $i = 0;
+        $medias = $social->obj_instagram->getApi()->getTagMedia($tag, 45);
+
+        $m = array();
+        if (isset($medias->data)) {
+            foreach ($medias->data as $m) {
+                $i++;
+                echo '<div style="float: left; margin: 0 5px 5px 0">';
+                echo '<img src="'.$m->images->thumbnail->url.'" alt="'.$i.'"/>';
+                echo '</div>';
+                CVarDumper::dump($m, 5, 1);
+//                break;
+            }
+        } else {
+            CVarDumper::dump($medias, 5, 1);
+        }
     }
     ?>
 </div>

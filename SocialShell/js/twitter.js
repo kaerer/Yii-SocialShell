@@ -45,27 +45,32 @@ function tw_reply(tweet_id, text){
 
 // Overwrite me !
 function tw_login_callback(){
-    track('tw_login');
+    track('twitter', 'login');
 }
 
 // Overwrite me !
-function tw_share_callback(){
-    track('tw_share');
+function tw_share_callback(intent_event){
+    if (intent_event) {
+        if (intent_event.target && intent_event.target.nodeName == 'IFRAME') {
+            opt_target = extractParamFromUri(intent_event.target.src, 'url');
+        }
+        track('twitter', 'tweet');
+    }
 }
 
 // Overwrite me !
 function tw_retweet_callback(tweet_id){
-    track('tw_retweet', tweet_id);
+    track('twitter', 'retweet');
 }
 
 // Overwrite me !
 function tw_favorite_callback(tweet_id){
-    track('tw_favorite', tweet_id);
+    track('twitter', 'favorite');
 }
 
 // Overwrite me !
 function tw_reply_callback(tweet_id){
-    track('tw_reply', tweet_id);
+    track('twitter', 'reply');
 }
 
 function open_popup(url, w, h, name){

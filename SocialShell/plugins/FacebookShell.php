@@ -158,7 +158,7 @@ class FacebookShell extends AbstractPlugin {
      * @param type $picture
      * @return boolean
      */
-    public function post_feed($link_text, $link, $description = '', $picture = false, $caption = false, $unique_id = false) {
+    public function post_feed($link_text, $link, $description = '', $picture = false, $caption = false, $to_unique_id = false) {
         try {
             $attachment = array(
                 //'access_token' => $this->access_token(),
@@ -171,7 +171,7 @@ class FacebookShell extends AbstractPlugin {
                 $attachment['caption'] = $caption;
             if ($picture)
                 $attachment['picture'] = $picture;
-            $result = $this->getApi()->api('/'.($unique_id ? $unique_id : 'me').'/feed/', 'POST', $attachment);
+            $result = $this->getApi()->api('/'.($to_unique_id ? $to_unique_id : 'me').'/feed/', 'POST', $attachment);
             $this->addAction('share', $result, __METHOD__);
             return $result;
         } catch (FacebookApiException $exc) {

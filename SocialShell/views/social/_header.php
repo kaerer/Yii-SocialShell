@@ -27,10 +27,10 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
         var fb_access_token = false;
 <?php endif; ?>
 
-<?php /* if ($socialModule->config->twitter_api): ?>
-  var tw_permissions = '<?php echo $socialModule->config->tw_permissions; ?>';
-  var tw_loggedin = false;
-  <?php endif; */ ?>
+<?php if ($socialModule->config->twitter_api): ?>
+        var tw_permissions = '<?php echo $socialModule->config->tw_permissions; ?>';
+        var tw_loggedin = false;
+<?php endif; ?>
 
 <?php if ($socialModule->config->instagram_api): ?>
         var in_login_url = '<?php echo $socialModule->obj_instagram->get_loginUrl(); ?>';

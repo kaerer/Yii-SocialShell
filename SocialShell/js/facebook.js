@@ -25,26 +25,31 @@ function fb_feed(link_text, caption, description, image, link, textarea){
 
 // Overwrite me !
 function fb_feed_callback(response){
-    track('wall_share');
+    track('facebook', 'post.send');
 }
 
-function fb_notification(text){
-    FB.ui({
+function fb_notification(text, title, redirect_uri, data){
+    var params = {
         method: 'apprequests',
         message: text
-    },
-    function(response){
-        if (response) {
-            fb_notification_callback(response);
-        } else {
-            fb_notification_callback();
-        }
-    });
+    };
+    if(typeof title !== 'undefined'){
+        params['title'] = title;
+    } else if(typeof appName !== 'undefined'){
+        params['title'] = appName;
+    }
+    if(typeof redirect_uri !== 'undefined'){
+        params['redirect_uri'] = redirect_uri;
+    }
+    if(typeof data !== 'undefined'){
+        params['data'] = data;
+    }
+    FB.ui(params, function(response){fb_notification_callback(response);});
 }
 
 // Overwrite me !
 function fb_notification_callback(response){
-    track('friend_notification');
+    track('facebook', 'notification.send');
 }
 
 function fb_check_login(){
@@ -63,7 +68,7 @@ function fb_login(permissions){
         fb_login_callback(response);
     }, {
         scope:(permissions ? permissions : fb_permissions)
-//        display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
+    //        display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
     });
 //    }, {scope:fb_permissions});
 }
@@ -72,8 +77,10 @@ function fb_login(permissions){
 function fb_login_callback(response){
     if(response && response.status === 'connected') {
         alert('İzinler alındı');
+        track('facebook', 'auth.yes');
     } else {
         alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
+        track('facebook', 'auth.no');
     }
 }
 
@@ -103,11 +110,13 @@ function fb_response_parser(response){
 // Overwrite me !
 function fb_like_callback(response){
     fb_page_liked = true;
+    track('facebook', 'like');
 //    console.log('like' + page_liked);
 }
 
 // Overwrite me !
-function fb_unliked_callback(response){
+function fb_unlike_callback(response){
     fb_page_liked = false;
+    track('facebook', 'unlike');
 //    console.log('unlike' + page_liked);
 }

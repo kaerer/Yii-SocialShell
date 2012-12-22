@@ -60,7 +60,7 @@ class TestController extends Controller {
         $this->socialConfig->fb_permissions = 'user_likes, user_interests, user_birthday, user_hometown';
 
         #- Run SocialShell
-        $this->socialModule->load($this->socialConfig);
+        $this->socialModule->loadConfig($this->socialConfig);
         $this->socialModule->start_api();
 
         $this->socialConfig->share_url = $this->socialModule->obj_facebook->get_tabUrl();
@@ -88,7 +88,7 @@ class TestController extends Controller {
         $this->socialConfig->ga_code = '999999999';
 
         #- Run SocialShell
-        $this->socialModule->load($this->socialConfig);
+        $this->socialModule->loadConfig($this->socialConfig);
         $this->socialModule->start_api();
 
         $this->render('analytics', array(
@@ -119,7 +119,7 @@ class TestController extends Controller {
         $config->twitter_api = true;
 
         #- Run SocialShell
-        $social->load($config);
+        $social->loadConfig($config);
         $social->start_api();
 
         $this->render('twitter', array(
@@ -142,7 +142,7 @@ class TestController extends Controller {
         $config->in_secret = '4389446b8b7d47a1823937538dd26555';
 
         #- Run SocialShell
-        $social->load($config);
+        $social->loadConfig($config);
         $social->start_api();
 
         $login_data = $social->obj_instagram->callback();

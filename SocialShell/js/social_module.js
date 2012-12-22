@@ -1,19 +1,28 @@
 
 // Will be overwritter in _fb.php or somewhere else
-function track(type, id){
-    id = !id ? 0 : id;
-    var post_data = {
-        't': type,
-        'id': id
-    }
+function track(platform, action, object_id){
+    if(typeof _gaq === 'undefined'){
+        object_id = !object_id ? 0 : object_id;
+        var post_data = {
+            't': action,
+            'id': object_id
+        }
 
-    $.ajax({
-        type    : 'POST',
-        data    : post_data,
-        url     : controller + '/track/',
-        //url     : '/' + controller + '/track/',
-        success : function() {  }
-    });
+        $.ajax({
+            type    : 'POST',
+            data    : post_data,
+            url     : controller + '/track/',
+            //url     : '/' + controller + '/track/',
+            success : function() {  }
+        });
+    } else {
+        var targetUrl;
+        ga_social_track(platform, action, targetUrl);
+    }
+}
+
+function ga_social_track(platform, action, targetUrl){
+    _gaq.push(['_trackSocial', platform, action, targetUrl]);
 }
 
 function print_r(theObj, return_data){
@@ -67,7 +76,7 @@ function open_popup(url, w, h, name){
     return popupx;
 }
 
-function rand (min, max) {
+function rand(min, max) {
     // Returns a random number
     //
     // version: 1109.2015
