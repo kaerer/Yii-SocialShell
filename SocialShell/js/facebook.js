@@ -62,7 +62,7 @@ function fb_check_login(){
     }
 }
 
-function fb_login(permissions){
+function fb_login(permissions, callback_success, callback_error){
     FB.login(function(response) {
         fb_response_parser(response);
         fb_login_callback(response);
@@ -74,13 +74,15 @@ function fb_login(permissions){
 }
 
 // Overwrite me !
-function fb_login_callback(response){
+function fb_login_callback(response, callback_success, callback_error){
     if(response && response.status === 'connected') {
-        alert('İzinler alındı');
+//        alert('İzinler alındı');
         track('facebook', 'auth.yes');
+        run_callback(callback_success);
     } else {
         alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
         track('facebook', 'auth.no');
+        run_callback(callback_error);
     }
 }
 

@@ -1,7 +1,10 @@
 
 // Will be overwritter in _fb.php or somewhere else
 function track(platform, action, object_id){
-    if(typeof _gaq === 'undefined'){
+    if(typeof _gaq === 'object'){
+        var targetUrl = object_id ? object_id : false;
+        ga_social_track(platform, action, targetUrl);
+    } else {
         object_id = !object_id ? 0 : object_id;
         var post_data = {
             't': action,
@@ -13,11 +16,8 @@ function track(platform, action, object_id){
             data    : post_data,
             url     : controller + '/track/',
             //url     : '/' + controller + '/track/',
-            success : function() {  }
+            success : function() {}
         });
-    } else {
-        var targetUrl;
-        ga_social_track(platform, action, targetUrl);
     }
 }
 
@@ -89,4 +89,11 @@ function rand(min, max) {
     if(typeof min === 'undefined') min = 0;
     if(typeof max === 'undefined') max = 2147483647;
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function run_callback(callback){
+    if(typeof callback === 'function'){
+        return callback();
+    }
+    return false;
 }
