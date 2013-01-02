@@ -52,12 +52,12 @@ function fb_notification_callback(response){
     track('facebook', 'notification.send');
 }
 
-function fb_check_login(){
+function fb_check_login(callback_success, callback_error){
     if(fb_unique_id && fb_loggedin) {
-        fb_login_callback(fb_global_response);
+        fb_login_callback(fb_global_response, callback_success, callback_error);
         return true;
     } else {
-        fb_login(false);
+        fb_login(false, callback_success, callback_error);
         return false;
     }
 }
@@ -65,7 +65,7 @@ function fb_check_login(){
 function fb_login(permissions, callback_success, callback_error){
     FB.login(function(response) {
         fb_response_parser(response);
-        fb_login_callback(response);
+        fb_login_callback(response, callback_success, callback_error);
     }, {
         scope:(permissions ? permissions : fb_permissions)
     //        display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
@@ -97,12 +97,12 @@ function fb_loginalready_callback(response){
 }
 
 function fb_response_parser(response){
-    fb_global_response = response;
     fb_loggedin = false;
-    if (typeof response.authResponse !== 'undefined') {
-        fb_access_token   = response.authResponse.accessToken;
+    if (typeof response === 'object') {
         if (response.status === 'connected') {
             fb_loggedin       = true;
+            fb_global_response = response;
+            fb_access_token   = response.authResponse.accessToken;
             fb_unique_id      = response.authResponse.userID;
             fb_signed_request = response.authResponse.signedRequest;
         }
