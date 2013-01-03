@@ -1,24 +1,27 @@
 
 // Will be overwritter in _fb.php or somewhere else
-function track(platform, action, object_id){
+function track(platform, action, object_id, callback){
     if(typeof _gaq === 'object'){
         var targetUrl = object_id ? object_id : false;
         ga_social_track(platform, action, targetUrl);
-    } else {
-        object_id = !object_id ? 0 : object_id;
-        var post_data = {
-            't': action,
-            'id': object_id
-        }
-
-        $.ajax({
-            type    : 'POST',
-            data    : post_data,
-            url     : controller + '/track/',
-            //url     : '/' + controller + '/track/',
-            success : function() {}
-        });
     }
+
+    object_id = !object_id ? 0 : object_id;
+    var post_data = {
+        'signed_request': fb_signed_request,
+        't': action,
+        'id': object_id
+    }
+
+    console.log('track');
+    $.ajax({
+        type    : 'POST',
+        data    : post_data,
+        url     : controller + '/track/',
+        success : function() {
+            run_callback(callback);
+        }
+    });
 }
 
 function ga_social_track(platform, action, targetUrl){

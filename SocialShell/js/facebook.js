@@ -68,21 +68,20 @@ function fb_login(permissions, callback_success, callback_error){
         fb_login_callback(response, callback_success, callback_error);
     }, {
         scope:(permissions ? permissions : fb_permissions)
-    //        display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
+    //, display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
     });
-//    }, {scope:fb_permissions});
 }
 
 // Overwrite me !
 function fb_login_callback(response, callback_success, callback_error){
     if(response && response.status === 'connected') {
 //        alert('İzinler alındı');
-        track('facebook', 'auth.yes');
         run_callback(callback_success);
+        track('facebook', 'auth.yes', function(){});
     } else {
         alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
-        track('facebook', 'auth.no');
         run_callback(callback_error);
+//        track('facebook', 'auth.no', function(){});
     }
 }
 
@@ -113,12 +112,10 @@ function fb_response_parser(response){
 function fb_like_callback(response){
     fb_page_liked = true;
     track('facebook', 'like');
-//    console.log('like' + page_liked);
 }
 
 // Overwrite me !
 function fb_unlike_callback(response){
     fb_page_liked = false;
     track('facebook', 'unlike');
-//    console.log('unlike' + page_liked);
 }
