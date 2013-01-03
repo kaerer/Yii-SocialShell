@@ -13,7 +13,6 @@ function track(platform, action, object_id, callback){
         'id': object_id
     }
 
-    console.log('track');
     $.ajax({
         type    : 'POST',
         data    : post_data,
