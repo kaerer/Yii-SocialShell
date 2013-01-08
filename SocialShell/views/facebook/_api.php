@@ -9,8 +9,7 @@
                     appId      : '<?= $socialModule->config->fb_app_id ?>', // App ID
                     status     : true, // check login status
                     cookie     : true, // enable cookies to allow the server to access the session
-                    xfbml      : true,  // parse XFBML
-                    channelUrl : '//<?= $socialModule->config->domain_url ?>/channel.html'
+                    xfbml      : true
                 });
     <?php else: ?>
                 FB.init({
