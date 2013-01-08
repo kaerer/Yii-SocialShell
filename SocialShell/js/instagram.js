@@ -1,7 +1,13 @@
+var in_login_popup;
+
 function in_check_login(){
+    if(typeof in_login_popup === 'undefined'){
+        in_login();
+    } else {
+        in_login_popup.focus();
+    }
 }
 
-var in_login_popup;
 function in_login(){
     in_login_popup = open_popup(in_login_url, 600, 400, in_login_popup);
 }

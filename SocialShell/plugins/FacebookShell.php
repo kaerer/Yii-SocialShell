@@ -46,10 +46,8 @@ class FacebookShell extends AbstractPlugin {
                         'fileUpload' => true,
                         'cookie' => true,
                     ));
-
             $this->setApi($api_object);
-
-            $this->set_accessTokenSession($this->get_accessToken());
+            $this->set_accessToken($this->get_accessToken());
         }
 
         $this->process_pageParams($silent_mode);
@@ -176,6 +174,7 @@ class FacebookShell extends AbstractPlugin {
             return $result;
         } catch (FacebookApiException $exc) {
             $this->addError('share', $exc, __METHOD__);
+            return false;
         } catch (Exception $exc) {
             $this->addError('share', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
             return false;
@@ -445,7 +444,6 @@ class FacebookShell extends AbstractPlugin {
     }
 
     /* System functions */
-
     private function get_accessTokenSession() {
         return self::getSession('fb_access_token');
     }

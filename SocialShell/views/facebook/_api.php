@@ -9,13 +9,15 @@
                     appId      : '<?= $socialModule->config->fb_app_id ?>', // App ID
                     status     : true, // check login status
                     cookie     : true, // enable cookies to allow the server to access the session
-                    xfbml      : true  // parse XFBML
+                    xfbml      : true,  // parse XFBML
+                    channelUrl : '//<?= $socialModule->config->domain_url ?>/channel.html'
                 });
     <?php else: ?>
                 FB.init({
                     status     : true, // check login status
                     cookie     : true, // enable cookies to allow the server to access the session
-                    xfbml      : true  // parse XFBML
+                    xfbml      : true,  // parse XFBML
+                    channelUrl : '//<?= $socialModule->config->domain_url ?>/channel.html'
                 });
     <?php endif; ?>
 
@@ -49,12 +51,12 @@
         };
 
         // Load the SDK Asynchronously
-        (function(d){
+        (function(d, debug){
             var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
             if (d.getElementById(id)) {return;}
             js = d.createElement('script'); js.id = id; js.async = true;
-            js.src = "//connect.facebook.net/<?= $socialModule->config->locale ?>/all.js";
+            js.src = "//connect.facebook.net/<?= $socialModule->config->locale ?>/all" + (debug ? "/debug" : "") + ".js";
             ref.parentNode.insertBefore(js, ref);
-        }(document));
+        }(document, /*debug*/ false));
     </script>
 <?php endif; ?>
