@@ -47,15 +47,18 @@ class FacebookShell extends AbstractPlugin {
                         'cookie' => true,
                     ));
             $this->setApi($api_object);
-            $this->set_accessToken($this->get_accessToken());
+            $this->set_accessToken();
         }
 
         $this->process_pageParams($silent_mode);
-//        $this->unique = $this->obj->getUser();
 
         if ($this->config->fb_page_id) {
             $this->config->fb_page_url = $this->get_pageUrl(); //'https://www.facebook.com/'.$this->config->fb_page_name;
             $this->config->fb_tab_url = $this->get_tabUrl();
+        }
+
+        if (!$this->config->fb_unique_id) {
+            $this->config->fb_unique_id = $this->getApi()->getUser();
         }
 
         if ($this->config->fb_unique_id) {
@@ -102,7 +105,7 @@ class FacebookShell extends AbstractPlugin {
             (true === is_object($access_token)) ? $this->access_token = $access_token->access_token : $this->access_token = $access_token;
             $this->getApi()->setAccessToken($this->access_token);
             $this->set_accessTokenSession($this->access_token);
-        } elseif ($renew && $this->get_accessTokenSession() !== false) {
+        } elseif ($renew || $this->get_accessTokenSession() !== false) {
             $this->access_token = $this->get_accessTokenSession();
             $this->getApi()->setAccessToken($this->access_token);
         } else {
@@ -456,10 +459,11 @@ class FacebookShell extends AbstractPlugin {
 
         $signed_request = Yii::app()->request->getParam('signed_request');
 
-        if (empty($signed_request) || !$signed_request) {
+        if (empty($signed_request) || !$signed_request || strpos($signed_request, '.') === false) {
 //            $this->addError('parse', 'signed_request is needed!', __METHOD__);
             return false;
         }
+        
         list($encoded_sig, $payload) = explode('.', $signed_request, 2);
 
         #- decode the data

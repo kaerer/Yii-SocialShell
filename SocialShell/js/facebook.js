@@ -44,7 +44,9 @@ function fb_notification(text, title, redirect_uri, data){
     if(typeof data !== 'undefined'){
         params['data'] = data;
     }
-    FB.ui(params, function(response){fb_notification_callback(response);});
+    FB.ui(params, function(response){
+        fb_notification_callback(response);
+    });
 }
 
 // Overwrite me !
@@ -65,7 +67,7 @@ function fb_check_login(callback_success, callback_error){
 function fb_login(permissions, callback_success, callback_error){
     FB.login(function(response) {
         fb_response_parser(response);
-        fb_login_callback(response, callback_success, callback_error);
+        fb_login_callback(response, callback_success, callback_error, true);
     }, {
         scope:(permissions ? permissions : fb_permissions)
     //, display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
@@ -73,15 +75,18 @@ function fb_login(permissions, callback_success, callback_error){
 }
 
 // Overwrite me !
-function fb_login_callback(response, callback_success, callback_error){
+function fb_login_callback(response, callback_success, callback_error, disable_track){
     if(response && response.status === 'connected') {
-//        alert('İzinler alındı');
+        //        alert('İzinler alındı');
         run_callback(callback_success);
-        track('facebook', 'auth.yes', function(){});
+        if(typeof disable_track === 'undefined') track('facebook', 'auth.yes', function(){});
     } else {
-        alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
-        run_callback(callback_error);
-//        track('facebook', 'auth.no', function(){});
+        if(callback_error){
+            run_callback(callback_error);
+        } else {
+            alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
+        }
+    //        track('facebook', 'auth.no', function(){});
     }
 }
 
