@@ -117,6 +117,7 @@ abstract class SocialConfigBox extends stdClass {
     public $tw_secret = null;
     public $tw_token = null;
     public $tw_token_secret = null;
+    public $tw_permissions = null;
     public $tw_unique_id = null;
 
     /*

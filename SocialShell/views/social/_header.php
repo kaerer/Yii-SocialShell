@@ -10,7 +10,7 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
 <script type="text/javascript">
     var domainUrl = '<?php echo $socialModule->config->domain_url; ?>';
     var appName = '<?php echo CHtml::encode($socialModule->config->app_name); ?>';
-    var controller = '<?php echo $controller; ?>';
+    var controller = domainUrl + '<?php echo $controller; ?>';
 
     var shareUrl = '<?php echo $socialModule->config->share_url; ?>';
     var shareImage = '<?php echo $socialModule->config->share_image; ?>';
@@ -28,7 +28,7 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
 <?php endif; ?>
 
 <?php if ($socialModule->config->twitter_api): ?>
-        var tw_permissions = '<?php echo $socialModule->config->tw_permissions; ?>';
+//        var tw_permissions = '<?php // echo $socialModule->config->tw_permissions; ?>';
         var tw_loggedin = false;
 <?php endif; ?>
 

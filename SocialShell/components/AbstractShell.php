@@ -7,8 +7,10 @@
  */
 abstract class AbstractShell extends CWebModule{
 
-    private $actions = array();
-    private $errors = array();
+    /** ----------- **/
+
+    protected static $actions = array();
+    protected static $errors = array();
 
     /**
      * Config Data
@@ -22,8 +24,8 @@ abstract class AbstractShell extends CWebModule{
      */
     public $loaded = false;
 
-    abstract function start_api();
 
+    abstract function start_api();
     /**
      * Get Config
      * @return SocialConfig
@@ -60,34 +62,31 @@ abstract class AbstractShell extends CWebModule{
         $this->loaded = true;
     }
 
-    public function getErrors() {
-        return $this->errors;
+    public static function getErrors($key = false) {
+        return $key ? (isset(self::$errors[$key]) ? self::$errors[$key] : false) : self::$errors;
     }
 
-    public function addError($key, $value, $group = 0) {
+    public static function addError($key, $value, $group = 0) {
         $error = array(
             $key => $value
         );
-        $this->errors[$group] = $error;
+        self::$errors[$group] = $error;
     }
 
-    public function cleanErrors() {
-        $this->errors = array();
+    public static function cleanErrors() {
+        self::$errors = array();
     }
 
-    public function getActions() {
-        return $this->actions;
+    public static function getActions($key = false) {
+        return $key ? (isset(self::$actions[$key]) ? self::$actions[$key] : false) : self::$errors;
     }
 
-    public function addAction($key, $value, $group = 0) {
-        $action = array(
-            $key => $value
-        );
-        $this->actions[$group] = $action;
+    public static function addAction($key, $value, $group = 0) {
+        self::$actions[$group][$key][] = $value;
     }
 
-    public function cleanActions() {
-        $this->actions = array();
+    public static function cleanActions() {
+        self::$actions = array();
     }
 
     public static function redirect($target, $js = true) {
@@ -102,5 +101,24 @@ abstract class AbstractShell extends CWebModule{
     public function debug() {
         return array('IDS' => $this->getActions(), 'ERRORS' => $this->getErrors());
     }
+
+    public static function setCookie($name, $value) {
+        $cookie = new CHttpCookie($name, $value);
+        $cookie->expire = time() + 604800; //60 * 60 * 24 * 7;
+        Yii::app()->request->cookies[$name] = $cookie;
+    }
+
+    public static function getCookie($name) {
+        return isset(Yii::app()->request->cookies[$name]) ? Yii::app()->request->cookies[$name]->value : false;
+    }
+
+    public static function getSession($name) {
+        return isset(Yii::app()->session[$name]) ? Yii::app()->session[$name] : false;
+    }
+
+    public static function setSession($name, $value) {
+        Yii::app()->session[$name] = $value;
+    }
+
 
 }

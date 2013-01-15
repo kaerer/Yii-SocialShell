@@ -109,7 +109,7 @@ class FacebookShell extends AbstractPlugin {
             $this->access_token = $this->get_accessTokenSession();
             $this->getApi()->setAccessToken($this->access_token);
         } else {
-            $this->addError('set_access_token', 'AccessToken is empty', __METHOD__);
+            self::addError('access_token', 'empty', __METHOD__);
         }
     }
 
@@ -142,9 +142,9 @@ class FacebookShell extends AbstractPlugin {
         if ($result) {
             return true;
         } else {
-            $this->addError('permissions_taken', $taken_permissions, __METHOD__);
-            $this->addError('permissions_needed', $needed_permissions, __METHOD__);
-            $this->addError('permissions_missing', $missing_permissions, __METHOD__);
+            self::addError('permissions_taken', $taken_permissions, __METHOD__);
+            self::addError('permissions_needed', $needed_permissions, __METHOD__);
+            self::addError('permissions_missing', $missing_permissions, __METHOD__);
             return false;
         }
     }
@@ -173,13 +173,13 @@ class FacebookShell extends AbstractPlugin {
             if ($picture)
                 $attachment['picture'] = $picture;
             $result = $this->getApi()->api('/'.($to_unique_id ? $to_unique_id : 'me').'/feed/', 'POST', $attachment);
-            $this->addAction('share', $result, __METHOD__);
+            self::addAction('post_feed', $result, __METHOD__);
             return $result;
         } catch (FacebookApiException $exc) {
-            $this->addError('share', $exc, __METHOD__);
+            self::addError('post_feed', $exc, __METHOD__);
             return false;
         } catch (Exception $exc) {
-            $this->addError('share', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+            self::addError('post_feed', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
             return false;
         }
     }
@@ -200,9 +200,9 @@ class FacebookShell extends AbstractPlugin {
         try {
             $results = $this->getApi()->api($object_path); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
-            $this->addError('data', $exc, __METHOD__);
+            self::addError('get_object', $exc, __METHOD__);
         } catch (Exception $exc) {
-            $this->addError('data', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+            self::addError('get_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
         }
         if (isset($results)) {
             if (is_array($results)) {
@@ -233,9 +233,9 @@ class FacebookShell extends AbstractPlugin {
 //                $object_params['accessToken'] = $this->get_accessToken();
             $results = $this->getApi()->api($object_path, $method, $object_params); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
-            $this->addError('data', $exc, __METHOD__);
+            self::addError('post_object', $exc, __METHOD__);
         } catch (Exception $exc) {
-            $this->addError('data', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+            self::addError('post_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
         }
         if (isset($results)) {
             if (is_array($results)) {
@@ -291,9 +291,9 @@ class FacebookShell extends AbstractPlugin {
                 }
             }
         } catch (FacebookApiException $exc) {
-            $this->addError('get_album', $exc, __METHOD__);
+            self::addError('get_album', $exc, __METHOD__);
         } catch (Exception $exc) {
-            $this->addError('get_album', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+            self::addError('get_album', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
         }
 
         // album mevcutmu kontrolu yap
@@ -303,12 +303,12 @@ class FacebookShell extends AbstractPlugin {
                 $create_album = $this->getApi()->api('/me/albums', 'POST', $album_details);
                 if ($create_album) {
                     $album_uid = $create_album['id'];
-                    $this->addAction('create_album', $album_uid, __METHOD__);
+                    self::addAction('create_album', $album_uid, __METHOD__);
                 }
             } catch (FacebookApiException $exc) {
-                $this->addError('create_album', $exc, __METHOD__);
+                self::addError('create_album', $exc, __METHOD__);
             } catch (Exception $exc) {
-                $this->addError('create_album', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+                self::addError('create_album', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
             }
         }
 
@@ -323,7 +323,7 @@ class FacebookShell extends AbstractPlugin {
             $photo = $this->getApi()->api('/'.$album_uid.'/photos', 'POST', $photo_details);
             if ($photo && isset($photo['id'])) {
                 //TODO:: gelen $photo değişkeni içinde link var mı acep? tekrar kontrol niheye
-                $this->addAction('create_photo', $photo['id'], __METHOD__);
+                self::addAction('create_photo', $photo['id'], __METHOD__);
                 $photo_info = $this->getApi()->api('/'.$photo['id']);
                 if ($photo_info) {
                     $this->ids['upload_photo'] = $photo_info;
@@ -331,9 +331,9 @@ class FacebookShell extends AbstractPlugin {
                 }
             }
         } catch (FacebookApiException $exc) {
-            $this->addError('upload_photo', $exc, __METHOD__);
+            self::addError('upload_photo', $exc, __METHOD__);
         } catch (Exception $exc) {
-            $this->addError('upload_photo', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+            self::addError('upload_photo', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
         }
 
         return $result;
@@ -460,10 +460,10 @@ class FacebookShell extends AbstractPlugin {
         $signed_request = Yii::app()->request->getParam('signed_request');
 
         if (empty($signed_request) || !$signed_request || strpos($signed_request, '.') === false) {
-//            $this->addError('parse', 'signed_request is needed!', __METHOD__);
+            self::addError('signed_request', 'not valid', __METHOD__);
             return false;
         }
-        
+
         list($encoded_sig, $payload) = explode('.', $signed_request, 2);
 
         #- decode the data
@@ -472,7 +472,8 @@ class FacebookShell extends AbstractPlugin {
 
         if (strtoupper($data['algorithm']) !== 'HMAC-SHA256') {
             //'Unknown algorithm. Expected HMAC-SHA256';
-//            $this->addError('algorithm_notSupported', array('algorithm' => strtoupper($data['algorithm'])), __METHOD__);
+//            self::addError('algorithm', array('algorithm' => strtoupper($data['algorithm'])), __METHOD__);
+            self::addError('algorithm', 'not supported', __METHOD__);
             return false;
         }
 
@@ -481,7 +482,7 @@ class FacebookShell extends AbstractPlugin {
             $expected_sig = hash_hmac('sha256', $payload, $fb_app_secret, $raw = true);
 
             if ($sig !== $expected_sig) {
-//                $this->addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($fb_app_secret)), __METHOD__);
+//                self::addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($fb_app_secret)), __METHOD__);
                 if (!$silent_mode)
                     return false;
             }

@@ -5,37 +5,10 @@
  *
  * @author Erce Erözbek <erce.erozbek@gmail.com>
  */
-abstract class AbstractPlugin{
+abstract class AbstractBase{
 
-    protected $api_object;
-
-    /**
-     *
-     * @return $this->api_object
-     */
-    public function &getApi() {
-        return $this->api_object;
-    }
-
-    public function setApi(&$api_object) {
-        $this->api_object = & $api_object;
-    }
-
-    /**
-     * Load Config
-     * @param SocialConfig $config
-     */
-//    public function load(SocialConfig &$config) {
-//        $this->setConfig($config);
-//        $this->config->configure();
-//
-//        $this->loaded = true;
-//    }
-
-    /** ----------- **/
-
-    protected static $actions = array();
-    protected static $errors = array();
+    protected $actions = array();
+    protected $errors = array();
 
     /**
      * Config Data
@@ -86,31 +59,31 @@ abstract class AbstractPlugin{
         $this->loaded = true;
     }
 
-    public static function getErrors($key = false) {
-        return $key ? (isset(self::$errors[$key]) ? self::$errors[$key] : false) : self::$errors;
+    public function getErrors($key = false) {
+        return $key ? (isset($this->errors[$key]) ? $this->errors[$key] : false) : $this->errors;
     }
 
-    public static function addError($key, $value, $group = 0) {
+    public function addError($key, $value, $group = 0) {
         $error = array(
             $key => $value
         );
-        self::$errors[$group] = $error;
+        $this->errors[$group] = $error;
     }
 
-    public static function cleanErrors() {
-        self::$errors = array();
+    public function cleanErrors() {
+        $this->errors = array();
     }
 
-    public static function getActions($key = false) {
-        return $key ? (isset(self::$actions[$key]) ? self::$actions[$key] : false) : self::$errors;
+    public function getActions($key = false) {
+        return $key ? (isset($this->actions[$key]) ? $this->actions[$key] : false) : $this->errors;
     }
 
-    public static function addAction($key, $value, $group = 0) {
-        self::$actions[$group][$key][] = $value;
+    public function addAction($key, $value, $group = 0) {
+        $this->actions[$group][$key][] = $value;
     }
 
-    public static function cleanActions() {
-        self::$actions = array();
+    public function cleanActions() {
+        $this->actions = array();
     }
 
     public static function redirect($target, $js = true) {
@@ -143,5 +116,6 @@ abstract class AbstractPlugin{
     public static function setSession($name, $value) {
         Yii::app()->session[$name] = $value;
     }
+
 
 }
