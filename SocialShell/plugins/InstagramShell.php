@@ -25,8 +25,9 @@ class InstagramShell extends AbstractPlugin {
         Yii::import('SocialShell.vendors.instagram.Instagram');
         $r = Yii::app()->request;
         if (!$this->config->in_callback) {
-            Yii::app()->session['tmp_callback_target'] = $r->getPathInfo();
-            $this->config->in_callback = $this->config->domain_url.'/callback';
+            Yii::app()->session['in_callback_started'] = $r->getPathInfo();
+            Yii::app()->session['in_callback_redirect_to'] = $this->config->in_callback_redirect_to;
+            $this->config->in_callback = str_replace('http://', 'https://', $this->config->domain_url).'/callback';
         }
 
         if (!$silent_mode) {
@@ -102,12 +103,16 @@ class InstagramShell extends AbstractPlugin {
     }
 
     public function callback($callback_params = FALSE, $popup = true) {
-        $callback_params = $callback_params ? $callback_params : Yii::app()->request->getParam('callback_params');
-//        if($callback_params){
-//            Yii::app()->session['in_callback_params'] = $callback_params;
-//        } else {
-//            $callback_params = Yii::app()->session['in_callback_params'];
-//        }
+        $callback_params = $callback_params ? $callback_params : urldecode(Yii::app()->request->getParam('callback_params'));
+
+        if(is_string($callback_params))
+            parse_str($callback_params, $callback_params);
+
+        if($callback_params){
+            Yii::app()->session['in_callback_params'] = $callback_params;
+        } else {
+            $callback_params = Yii::app()->session['in_callback_params'];
+        }
 
         $result = array(
             'active' => false,
@@ -139,13 +144,18 @@ class InstagramShell extends AbstractPlugin {
         if (is_object($user) && isset($user->meta) && $user->meta->code == '200') {
             $this->config->in_loggedin = true;
         }
+//        CVarDumper::dump($user,5,1);
+//        CVarDumper::dump($callback_params,5,1);
+//        CVarDumper::dump($result,5,1);
+//        CVarDumper::dump($this->config->in_loggedin,5,1);
 
         if ($popup && $result['active']) {
-            echo '<script>';
-            echo 'window.opener.in_login_callback('.CJSON::encode($result).');';
-            echo 'window.opener.console.log('.CJSON::encode($result).');';
-            echo '</script>';
-            Yii::app()->end();
+            echo '<script>'."\n";
+            echo 'var results = '.CJSON::encode($result).';'."\n";
+            echo 'window.opener.in_login_callback(results);'."\n";
+//            echo 'window.opener.console.log(results);'."\n";
+            echo '</script>'."\n";
+//            Yii::app()->end();
         }
 
         return $result;
