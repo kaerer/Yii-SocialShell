@@ -127,7 +127,19 @@ abstract class SocialConfigBox extends stdClass {
     public $instagram_api = false;
     public $in_key = null;
     public $in_secret = null;
+
+    /**
+     * Instagram app callback
+     * //domain/callback
+     * @var type
+     */
     public $in_callback = null;
+    /**
+     * After instagram callback end successfully
+     * callback controller redirect to the caller controller if $in_callback_redirect not setted
+     * @var type
+     */
+    public $in_callback_redirect_to = null;
 
     /**
      * Auth Permissions
