@@ -5,7 +5,7 @@
  *
  * @author Erce Erözbek <erce.erozbek@gmail.com>
  */
-abstract class AbstractPlugin{
+abstract class AbstractPlugin {
 
     protected $api_object;
 
@@ -32,8 +32,7 @@ abstract class AbstractPlugin{
 //        $this->loaded = true;
 //    }
 
-    /** ----------- **/
-
+    /** ----------- * */
     protected static $actions = array();
     protected static $errors = array();
 
@@ -50,6 +49,7 @@ abstract class AbstractPlugin{
     public $loaded = false;
 
     abstract function start_api();
+
     /**
      * Get Config
      * @return SocialConfig

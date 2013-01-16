@@ -30,7 +30,7 @@ class InstagramShell extends AbstractPlugin {
             $this->config->in_callback = str_replace('http://', 'https://', $this->config->domain_url).'/callback';
         }
 
-        if (!$silent_mode) {
+//        if (!$silent_mode) {
             switch (true) {
                 case (!$this->config->in_key):
                     $this->addError('start_api', 'AppID not defined', __METHOD__);
@@ -47,9 +47,10 @@ class InstagramShell extends AbstractPlugin {
 
             $this->setApi($api_object);
 
-            $this->set_accessTokenSession($this->get_accessToken());
-
-        }
+            $this->set_accessToken();
+//            $this->config->in_unique_id = $this->getApi()->
+            $this->config->in_unique_id = $api_object->getUser();
+//        }
 
         $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/instagram.js');
         $cs = Yii::app()->getClientScript();
@@ -78,7 +79,10 @@ class InstagramShell extends AbstractPlugin {
     }
 
     public function get_accessToken() {
-        return $this->access_token ? $this->access_token : $this->getApi()->getAccessToken();
+        if (empty($this->access_token))
+            $this->access_token = $this->getApi()->getAccessToken();
+
+        return $this->access_token;
     }
 
     public function set_accessToken($access_token = false, $renew = false) {
@@ -86,13 +90,14 @@ class InstagramShell extends AbstractPlugin {
             (true === is_object($access_token)) ? $this->access_token = $access_token->access_token : $this->access_token = $access_token;
             $this->getApi()->setAccessToken($this->access_token);
             $this->set_accessTokenSession($this->access_token);
-        } elseif ($renew && $this->get_accessTokenSession() !== false) {
+        } elseif ($renew || $this->get_accessTokenSession() !== false) {
             $this->access_token = $this->get_accessTokenSession();
             $this->getApi()->setAccessToken($this->access_token);
         } else {
-            $this->addError('set_access_token', 'AccessToken is empty', __METHOD__);
+            self::addError('access_token', 'empty', __METHOD__);
         }
     }
+
 
     private function get_accessTokenSession() {
         return Yii::app()->session['in_access_token'];
