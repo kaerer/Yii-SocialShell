@@ -114,13 +114,13 @@ function fb_response_parser(response){
 }
 
 // Overwrite me !
-function fb_like_callback(response){
+function fb_like_callback(response, disable_track){
     fb_page_liked = true;
-    track('facebook', 'like');
+    if(typeof disable_track === 'undefined') track('facebook', 'like');
 }
 
 // Overwrite me !
-function fb_unlike_callback(response){
+function fb_unlike_callback(response, disable_track){
     fb_page_liked = false;
-    track('facebook', 'unlike');
+    if(typeof disable_track === 'undefined') track('facebook', 'unlike');
 }

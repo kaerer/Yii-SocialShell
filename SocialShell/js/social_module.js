@@ -93,9 +93,9 @@ function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function run_callback(callback){
+function run_callback(callback, param1, param2){
     if(typeof callback === 'function'){
-        return callback();
+        return callback(param1, param2);
     }
     return false;
 }

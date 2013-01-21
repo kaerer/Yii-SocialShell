@@ -47,7 +47,11 @@ class FacebookShell extends AbstractPlugin {
                         'cookie' => true,
                     ));
             $this->setApi($api_object);
-            $this->set_accessToken();
+
+            if ($this->config->fb_extend_access_token)
+                $this->set_accessToken_extended();
+            else
+                $this->get_accessToken();
         }
 
         $this->process_pageParams($silent_mode);
@@ -93,23 +97,30 @@ class FacebookShell extends AbstractPlugin {
         return $loginUrl;
     }
 
-    public function get_accessToken() {
-        if (empty($this->access_token))
-            $this->access_token = $this->getApi()->getAccessToken();
+    public function set_accessToken_extended() {
+        return ($this->getApi()->setExtendedAccessToken() === false) ? false : $this->get_accessToken();
+    }
 
+    public function get_accessToken() {
+        $this->access_token = $this->getApi()->getAccessToken();
+        $this->set_accessTokenSession($this->access_token);
         return $this->access_token;
     }
 
     public function set_accessToken($access_token = false, $renew = false) {
         if ($access_token) {
-            (true === is_object($access_token)) ? $this->access_token = $access_token->access_token : $this->access_token = $access_token;
+            $this->access_token = (true === is_object($access_token)) ? $access_token->access_token : $access_token;
             $this->getApi()->setAccessToken($this->access_token);
             $this->set_accessTokenSession($this->access_token);
+            return true;
         } elseif ($renew || $this->get_accessTokenSession() !== false) {
             $this->access_token = $this->get_accessTokenSession();
             $this->getApi()->setAccessToken($this->access_token);
+            $this->set_accessTokenSession($this->access_token);
+            return 2;
         } else {
             self::addError('access_token', 'empty', __METHOD__);
+            return false;
         }
     }
 
@@ -200,9 +211,10 @@ class FacebookShell extends AbstractPlugin {
         try {
             $results = $this->getApi()->api($object_path); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
-            self::addError('get_object', $exc, __METHOD__);
+            self::addError('get_object', $exc->getMessage(), __METHOD__);
         } catch (Exception $exc) {
-            self::addError('get_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+//            self::addError('get_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+            self::addError('get_object', $exc->getMessage(), __METHOD__);
         }
         if (isset($results)) {
             if (is_array($results)) {
@@ -233,9 +245,10 @@ class FacebookShell extends AbstractPlugin {
 //                $object_params['accessToken'] = $this->get_accessToken();
             $results = $this->getApi()->api($object_path, $method, $object_params); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
-            self::addError('post_object', $exc, __METHOD__);
+            self::addError('post_object', $exc->getMessage(), __METHOD__);
         } catch (Exception $exc) {
-            self::addError('post_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+//            self::addError('post_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+            self::addError('post_object', $exc->getMessage(), __METHOD__);
         }
         if (isset($results)) {
             if (is_array($results)) {
@@ -339,16 +352,15 @@ class FacebookShell extends AbstractPlugin {
         return $result;
     }
 
-    public function get_addingAppToTabUrl() {
-        return 'https://www.facebook.com/dialog/pagetab?app_id='.$this->config->fb_app_id.'&next='.$this->get_tabUrl();
+    public function get_addingAppToTabUrl($redirect_url = false) {
+        return 'https://www.facebook.com/dialog/pagetab?app_id='.$this->config->fb_app_id.'&next='.($redirect_url ? $redirect_url : $this->get_tabUrl());
     }
 
     public function get_tabUrl($params = false) {
         if (!$this->config->fb_tab_url) {
             $this->config->fb_tab_url = $this->get_pageUrl().'?sk=app_'.$this->config->fb_app_id;
         }
-        $str_params = is_array($params) ? 'app_data='.urlencode(http_build_query($params)) : '';
-//        return "https://www.facebook.com/pages/-/".$this->config->fb_page_id."?sk=app_".$this->config->fb_app_id.($str_params ? '&'.$str_params : '');
+        $str_params = is_array($params) ? 'app_data='.urlencode(json_encode($params)) : '';
         return $this->config->fb_tab_url.($str_params ? '&'.$str_params : '');
     }
 
@@ -382,10 +394,9 @@ class FacebookShell extends AbstractPlugin {
     public function process_pageParams($silent_mode = false) {
         $data = self::parse_signed_request($silent_mode, $this->config->fb_app_secret);
         if (is_array($data)) {
-            foreach ($data as $k => $v) {
-                $this->config->fb_page_params[$k] = $v;
-            }
-//            CVarDumper::dump($data);
+//            foreach ($data as $k => $v) {
+//                $this->config->fb_page_params[$k] = $v;
+//            }
             if (isset($data['page'])) {
                 $this->config->fb_page_id = $data['page']['id'];
                 $this->config->fb_page_admin = $data['page']['admin'];
@@ -400,7 +411,7 @@ class FacebookShell extends AbstractPlugin {
             }
 
             if (isset($data['app_data'])) {
-                parse_str($data['app_data'], $this->config->fb_tab_params);
+                $this->config->fb_tab_params = CJSON::decode(urldecode($data['app_data']));
             }
         }
         return $data;
@@ -447,6 +458,7 @@ class FacebookShell extends AbstractPlugin {
     }
 
     /* System functions */
+
     private function get_accessTokenSession() {
         return self::getSession('fb_access_token');
     }

@@ -59,6 +59,8 @@ abstract class SocialConfigBox extends stdClass {
      */
     public $fb_unique_id = null;
 
+    public $fb_extend_access_token = false;
+
     /**
      * Auth Permissions
      *
