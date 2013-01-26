@@ -177,7 +177,7 @@ class FacebookShell extends AbstractPlugin {
                 'link' => $link,
                 'name' => $link_text,
                 'description' => $description,
-                'message' => "",
+//                'message' => "",
             );
             if ($caption)
                 $attachment['caption'] = $caption;

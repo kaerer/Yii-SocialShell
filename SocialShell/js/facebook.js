@@ -28,7 +28,7 @@ function fb_feed_callback(response){
     track('facebook', 'post.send');
 }
 
-function fb_notification(text, title, redirect_uri, data){
+function fb_notification(text, title, to, data, redirect_uri){
     var params = {
         method: 'apprequests',
         message: text
@@ -38,12 +38,17 @@ function fb_notification(text, title, redirect_uri, data){
     } else if(typeof appName !== 'undefined'){
         params['title'] = appName;
     }
+    if(typeof to !== 'undefined'){
+        params['to'] = to;
+    }
     if(typeof redirect_uri !== 'undefined'){
         params['redirect_uri'] = redirect_uri;
     }
     if(typeof data !== 'undefined'){
         params['data'] = data;
     }
+    
+    console.log(params);
     FB.ui(params, function(response){
         fb_notification_callback(response);
     });
