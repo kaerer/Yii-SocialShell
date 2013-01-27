@@ -30,13 +30,13 @@ abstract class AbstractShell extends CWebModule{
      * Get Config
      * @return SocialConfig
      */
-    public function getConfig($all = false) { //& referans kullanmak
+    public function getConfig($all = false, $filter = false) { //& referans kullanmak
         if ($all)
             return $this->config;
 
         $config = array();
         foreach ($this->config as $k => $v) {
-            if ($v !== null)
+            if ($v !== null && (!(bool)$filter || strpos($k, $filter) !== false))
                 $config[$k] = $v;
         }
 
