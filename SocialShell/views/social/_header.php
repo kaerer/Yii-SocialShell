@@ -18,12 +18,15 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
 <?php if ($socialModule->config->facebook_api): ?>
         var fb_pageUrl = '<?php echo $socialModule->obj_facebook->get_pageUrl(); ?>';
         var fb_tabUrl = '<?php echo $socialModule->obj_facebook->get_tabUrl(); ?>';
+
+        var fb_page_id = '<?php echo $socialModule->config->fb_page_id; ?>';
         var fb_page_liked = <?php echo $socialModule->config->fb_page_liked ? 'true' : 'false'; ?>;
+        var fb_page_signed_request = '<?php echo Yii::app()->request->getParam('signed_request')?>';
+        var fb_loggedin = '<?php echo $socialModule->config->fb_loggedin; ?>';
+        var fb_unique_id = '<?php echo $socialModule->config->fb_unique_id; ?>';
+        var fb_signed_request = '<?php echo Yii::app()->request->getParam('signed_request')?>';
         var fb_permissions = '<?php echo $socialModule->config->fb_permissions; ?>';
         var fb_takenperms = false;
-        var fb_loggedin = false;
-        var fb_unique_id = false;
-        var fb_signed_request = false;
         var fb_access_token = false;
 <?php endif; ?>
 
@@ -35,8 +38,8 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
 <?php if ($socialModule->config->instagram_api): ?>
         var in_login_url = '<?php echo $socialModule->obj_instagram->get_loginUrl(); ?>';
         var in_permissions = '<?php echo $socialModule->config->in_permissions; ?>';
-        var in_loggedin = false;
-        var in_unique_id = false;
+        var in_loggedin = '<?php echo $socialModule->config->in_loggedin ? 'true' : 'false'; ?>';
+        var in_unique_id = '<?php echo $socialModule->config->in_unique_id; ?>';
 <?php endif; ?>
 
     var process = false;

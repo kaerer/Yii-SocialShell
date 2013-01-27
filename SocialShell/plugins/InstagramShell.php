@@ -31,25 +31,38 @@ class InstagramShell extends AbstractPlugin {
         }
 
 //        if (!$silent_mode) {
-            switch (true) {
-                case (!$this->config->in_key):
-                    $this->addError('start_api', 'AppID not defined', __METHOD__);
-                    break;
-                case (!$this->config->in_secret):
-                    $this->addError('start_api', 'Api does not have logout function', __METHOD__);
-                    break;
-            }
-            $api_object = new Instagram(array(
-                        'apiKey' => $this->config->in_key,
-                        'apiSecret' => $this->config->in_secret,
-                        'apiCallback' => $this->config->in_callback
-                    ));
+        switch (true) {
+            case (!$this->config->in_key):
+                $this->addError('start_api', 'AppID not defined', __METHOD__);
+                break;
+            case (!$this->config->in_secret):
+                $this->addError('start_api', 'Api does not have logout function', __METHOD__);
+                break;
+        }
+        $api_object = new Instagram(array(
+                    'apiKey' => $this->config->in_key,
+                    'apiSecret' => $this->config->in_secret,
+                    'apiCallback' => $this->config->in_callback
+                ));
 
-            $this->setApi($api_object);
+        $this->setApi($api_object);
 
-            $this->set_accessToken();
+        $this->set_accessToken(FALSE, TRUE);
+
+        $user = $this->getApi()->getUser();
+        if (is_object($user) && isset($user->meta) && $user->meta->code == '200') {
+            $this->config->in_loggedin = true;
+            $this->config->in_unique_id = $user->data->id;
+            self::setSession('in_unique_id', $this->config->in_unique_id);
+        }
+
+
 //            $this->config->in_unique_id = $this->getApi()->
-            $this->config->in_unique_id = $api_object->getUser();
+//            $this->config->in_unique_id = (int)$api_object->getUser();
+//        $tmp_id = (int)self::getSession('in_unique_id');
+//        if ($tmp_id) {
+//            $this->config->in_unique_id = $tmp_id;
+//        }
 //        }
 
         $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/instagram.js');
@@ -98,7 +111,6 @@ class InstagramShell extends AbstractPlugin {
         }
     }
 
-
     private function get_accessTokenSession() {
         return Yii::app()->session['in_access_token'];
     }
@@ -110,10 +122,10 @@ class InstagramShell extends AbstractPlugin {
     public function callback($callback_params = FALSE, $popup = true) {
         $callback_params = $callback_params ? $callback_params : urldecode(Yii::app()->request->getParam('callback_params'));
 
-        if(is_string($callback_params))
+        if (is_string($callback_params))
             parse_str($callback_params, $callback_params);
 
-        if($callback_params){
+        if ($callback_params) {
             Yii::app()->session['in_callback_params'] = $callback_params;
         } else {
             $callback_params = Yii::app()->session['in_callback_params'];
@@ -129,11 +141,13 @@ class InstagramShell extends AbstractPlugin {
 
         $result['code'] = isset($callback_params['code']) ? $callback_params['code'] : false;
         $result['error'] = isset($callback_params['error_reason']) ? $callback_params['error_reason'] : false;
+
         if ($result['code']) {
             $result['data'] = $this->getApi()->getOAuthToken($callback_params['code']);
             if (is_object($result['data']) && isset($result['data']->access_token)) {
                 self::setCookie('in_access_token', $result['data']->access_token);
                 $this->getApi()->setAccessToken($result['data']);
+                $this->set_accessTokenSession($this->getApi()->getAccessToken());
             }
         } else {
             $access_token = self::getCookie('in_access_token');
@@ -148,19 +162,23 @@ class InstagramShell extends AbstractPlugin {
         $user = $this->getApi()->getUser();
         if (is_object($user) && isset($user->meta) && $user->meta->code == '200') {
             $this->config->in_loggedin = true;
+            $this->config->in_unique_id = $user->data->id;
+            self::setSession('in_unique_id', $this->config->in_unique_id);
         }
 //        CVarDumper::dump($user,5,1);
-//        CVarDumper::dump($callback_params,5,1);
+//        CVarDumper::dump($this->config->in_unique_id,5,1);
 //        CVarDumper::dump($result,5,1);
 //        CVarDumper::dump($this->config->in_loggedin,5,1);
 
         if ($popup && $result['active']) {
+            /**
+             * Js callback çağırılıyor olması sayfa sonu anlamına gelmez, callback çağrılıp sonrasında resim kayıt işlemleri vs devam ediyor olacak.
+             */
             echo '<script>'."\n";
             echo 'var results = '.CJSON::encode($result).';'."\n";
             echo 'window.opener.in_login_callback(results);'."\n";
 //            echo 'window.opener.console.log(results);'."\n";
             echo '</script>'."\n";
-//            Yii::app()->end();
         }
 
         return $result;

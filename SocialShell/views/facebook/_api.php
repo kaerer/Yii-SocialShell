@@ -45,10 +45,10 @@
                 fb_logout_callback(response);
             });
 
-//            FB.getLoginStatus(function(response) {
-//                fb_loginalready_callback(response);
-//                //response.authResponse;
-//            }, true);
+            FB.getLoginStatus(function(response) {
+                fb_loginalready_callback(response);
+                //response.authResponse;
+            }, true);
         };
 
         // Load the SDK Asynchronously

@@ -47,7 +47,7 @@ function fb_notification(text, title, to, data, redirect_uri){
     if(typeof data !== 'undefined'){
         params['data'] = data;
     }
-    
+
     console.log(params);
     FB.ui(params, function(response){
         fb_notification_callback(response);
@@ -112,8 +112,8 @@ function fb_response_parser(response){
             fb_loggedin       = true;
             fb_global_response = response;
             fb_access_token   = response.authResponse.accessToken;
-            fb_unique_id      = response.authResponse.userID;
-            fb_signed_request = response.authResponse.signedRequest;
+            if(response.authResponse.userID) fb_unique_id      = response.authResponse.userID;
+            if(response.authResponse.signedRequest) fb_signed_request = response.authResponse.signedRequest;
         }
     }
 }
