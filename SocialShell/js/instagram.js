@@ -11,7 +11,11 @@ function in_check_login(callback_success, callback_error){
 }
 
 function in_login(){
-    in_login_popup = open_popup(in_login_url, 600, 400, in_login_popup);
+    if (typeof in_login_popup !== 'undefined' && !in_login_popup.closed) {
+        in_login_popup.focus();
+    } else {
+        in_login_popup = open_popup(in_login_url, 600, 400, 'in_login_popup');
+    }
 }
 
 //callback_obj = array(

@@ -64,18 +64,26 @@ function open_popup(url, w, h, name){
 
     if(typeof w === 'undefined') w = 600;
     if(typeof h === 'undefined') h = 400;
-    if(typeof name === 'undefined') 'popup_' + rand(10, 99);
+    if(typeof name === 'undefined') name = 'popup_' + rand(10, 99);
 
     var left = (screen.width/2)-(w/2);
     var top = (screen.height/2)-(h/2);
 
-    var popupx  = window.open(url, name, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=yes, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
-    if (window.focus)
+    var params = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=yes, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left;
+
+    var popupx  = open_window(url, name, params);
+    return popupx;
+}
+
+function open_window(url, name, params){
+
+    var windowx = window.open(url, name, params);
+    if (windowx.focus)
     {
-        popupx.focus();
+        windowx.focus();
     }
 
-    return popupx;
+    return windowx;
 }
 
 function rand(min, max) {

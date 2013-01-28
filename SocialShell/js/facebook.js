@@ -84,6 +84,7 @@ function fb_login_callback(response, callback_success, callback_error, disable_t
     if(response && response.status === 'connected') {
         //        alert('İzinler alındı');
         run_callback(callback_success);
+        fb_get_user_profile();
         if(typeof disable_track === 'undefined') track('facebook', 'auth.yes', function(){});
     } else {
         if(callback_error){
@@ -93,6 +94,16 @@ function fb_login_callback(response, callback_success, callback_error, disable_t
         }
     //        track('facebook', 'auth.no', function(){});
     }
+}
+
+function fb_get_user_profile(){
+    if(fb_loggedin) {
+        FB.api('/me', function(response) {
+            fb_user_profile = response;
+            fb_unique_id = response.id;
+        });
+    }
+
 }
 
 // Overwrite me !

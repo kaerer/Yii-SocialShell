@@ -126,9 +126,9 @@ class InstagramShell extends AbstractPlugin {
             parse_str($callback_params, $callback_params);
 
         if ($callback_params) {
-            Yii::app()->session['in_callback_params'] = $callback_params;
+            self::setSession('in_callback_params', $callback_params);
         } else {
-            $callback_params = Yii::app()->session['in_callback_params'];
+            $callback_params = self::getSession('in_callback_params');
         }
 
         $result = array(
@@ -177,6 +177,9 @@ class InstagramShell extends AbstractPlugin {
             echo '<script>'."\n";
             echo 'var results = '.CJSON::encode($result).';'."\n";
             echo 'window.opener.in_login_callback(results);'."\n";
+            echo 'window.opener.in_loggedin = true;'."\n";
+            echo 'window.opener.in_unique_id = "'.$this->config->in_unique_id.'";'."\n";
+            echo 'window.opener.in_user_profile = results;'."\n";
 //            echo 'window.opener.console.log(results);'."\n";
             echo '</script>'."\n";
         }
