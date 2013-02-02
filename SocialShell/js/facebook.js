@@ -1,6 +1,6 @@
 var fb_global_response;
 
-function fb_feed(link_text, caption, description, image, link, textarea){
+function fb_feed(link_text, caption, description, image, link, redirect_url, textarea){
 
     if(textarea === undefined) textarea = '';
 
@@ -9,6 +9,7 @@ function fb_feed(link_text, caption, description, image, link, textarea){
         method: 'feed',
         name: link_text,
         link: link,
+        redirect_uri: (typeof redirect_url !== 'undefined') ? redirect_url : link,
         picture: image,
         caption: caption,
         description: description,
@@ -81,14 +82,13 @@ function fb_login(permissions, callback_success, callback_error){
 
 // Overwrite me !
 function fb_login_callback(response, callback_success, callback_error, disable_track){
-    if(response && response.status === 'connected') {
-        //        alert('İzinler alındı');
-        run_callback(callback_success);
+    if((response && response.status === 'connected') || (fb_unique_id && fb_loggedin)) {
+        run_callback(callback_success, response);
         fb_get_user_profile();
         if(typeof disable_track === 'undefined') track('facebook', 'auth.yes', function(){});
     } else {
         if(callback_error){
-            run_callback(callback_error);
+            run_callback(callback_error, response);
         } else {
             alert('Katılabilmek için uygulamamıza izin vermelisiniz.');
         }
@@ -125,8 +125,10 @@ function fb_response_parser(response){
             fb_access_token   = response.authResponse.accessToken;
             if(response.authResponse.userID) fb_unique_id      = response.authResponse.userID;
             if(response.authResponse.signedRequest) fb_signed_request = response.authResponse.signedRequest;
+            return true;
         }
     }
+    return false;
 }
 
 // Overwrite me !

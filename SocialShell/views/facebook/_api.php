@@ -6,18 +6,19 @@
         window.fbAsyncInit = function() {
     <?php if ($socialModule->config->fb_app_id): ?>
                 FB.init({
-                    appId      : '<?= $socialModule->config->fb_app_id ?>', // App ID
+                    appId      : '<?php echo $socialModule->config->fb_app_id; ?>', // App ID
+                    frictionlessRequests: true,
                     status     : true, // check login status
                     cookie     : true, // enable cookies to allow the server to access the session
                     xfbml      : true,  // parse XFBML
-                    channelUrl : '/channel.html'
+                    channelUrl : '<?php echo $socialModule->config->domain_url; ?>/channel.html'
                 });
     <?php else: ?>
                 FB.init({
                     status     : true, // check login status
                     cookie     : true, // enable cookies to allow the server to access the session
                     xfbml      : true,  // parse XFBML
-                    channelUrl : '//<?= $socialModule->config->domain_url ?>/channel.html'
+                    channelUrl : '<?php echo $socialModule->config->domain_url; ?>/channel.html'
                 });
     <?php endif; ?>
 

@@ -444,8 +444,9 @@ class FacebookShell extends AbstractPlugin {
         return 'https://www.facebook.com/dialog/pagetab?app_id='.$app_id.'&next='.($next_target ? $next_target : 'http://facebook.com');
     }
 
-    public static function get_likeButton($url, $width = '100') {
-        return '<div class="fb-like" data-href="'.$url.'" data-send="false" data-layout="button_count" data-width="'.$width.'" data-show-faces="false"></div>';
+    public static function get_likeButton($url, $width = '120') {
+        if(!$width = (int)$width) $width = 120;
+        return '<div class="fb-like" data-href="'.trim($url).'" data-send="false" data-layout="button_count" data-width="'.$width.'" data-show-faces="false"></div>';
     }
 
     public static function set_header() {
