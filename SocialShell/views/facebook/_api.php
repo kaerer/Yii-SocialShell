@@ -4,10 +4,11 @@
     <div id="fb-root"></div>
     <script type="text/javascript">
         window.fbAsyncInit = function() {
-    <?php if ($socialModule->config->fb_app_id): ?>
+//                    frictionlessRequests: true,
+
+        <?php if ($socialModule->config->fb_app_id): ?>
                 FB.init({
-                    appId      : '<?php echo $socialModule->config->fb_app_id; ?>', // App ID
-                    frictionlessRequests: true,
+                    appId      : '<?php echo $socialModule->config->fb_app_id; ?>',
                     status     : true, // check login status
                     cookie     : true, // enable cookies to allow the server to access the session
                     xfbml      : true,  // parse XFBML
@@ -22,7 +23,7 @@
                 });
     <?php endif; ?>
 
-            FB.Canvas.setAutoGrow(500);
+            FB.Canvas.setAutoGrow(true);
 
             //catch like event
             FB.Event.subscribe('edge.create', function(response) {

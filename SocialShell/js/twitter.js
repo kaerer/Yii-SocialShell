@@ -7,7 +7,7 @@ function tw_login(url){
 }
 
 function tw_share(text){
-    var url	= 'http://twitter.com/?status=' + encodeURIComponent(text);
+    var url	= '//twitter.com/?status=' + encodeURIComponent(text); //http:
 
     open_popup(url, 600, 300, 'twitter')
 
@@ -16,7 +16,7 @@ function tw_share(text){
 }
 
 function tw_retweet(tweet_id){
-    var url	= 'https://twitter.com/intent/retweet?tweet_id=' + tweet_id;
+    var url	= '//twitter.com/intent/retweet?tweet_id=' + tweet_id; //https:
 
     open_popup(url, 550, 400, 'twitter')
 
@@ -25,7 +25,7 @@ function tw_retweet(tweet_id){
 }
 
 function tw_favorite(tweet_id){
-    var url	= 'https://twitter.com/intent/favorite?tweet_id=' + tweet_id;
+    var url	= '//twitter.com/intent/favorite?tweet_id=' + tweet_id; //https:
 
     open_popup(url, 550, 420, 'twitter')
 
@@ -35,7 +35,7 @@ function tw_favorite(tweet_id){
 
 function tw_reply(tweet_id, text){
     if(!text) text = '#sosyalliderlergundemi';
-    var url	= 'https://twitter.com/intent/tweet?in_reply_to=' + tweet_id + (text ? '&text=' + encodeURIComponent(text): '');
+    var url	= '//twitter.com/intent/tweet?in_reply_to=' + tweet_id + (text ? '&text=' + encodeURIComponent(text): ''); //https:
 
     open_popup(url, 550, 400, 'twitter')
 

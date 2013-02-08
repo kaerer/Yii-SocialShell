@@ -26,7 +26,7 @@ class TestController extends Controller {
     public function actionIndex() {
 
         if (!YII_DEBUG) {
-            $url = 'http://www.baseiletisim.com';
+            $url = 'http://www.workattack.com';
             yii::app()->request->redirect($url);
         }
 
