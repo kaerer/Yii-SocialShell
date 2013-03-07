@@ -62,7 +62,7 @@ class FacebookShell extends AbstractPlugin {
         }
 
         if (!$this->config->fb_unique_id) {
-            $this->config->fb_unique_id = $this->getApi()->getUser();
+//            $this->config->fb_unique_id = $this->getApi()->getUser();
         }
 
         if ($this->config->fb_unique_id) {
@@ -358,7 +358,7 @@ class FacebookShell extends AbstractPlugin {
 
     public function get_tabUrl($params = false) {
         if (!$this->config->fb_tab_url) {
-            $this->config->fb_tab_url = $this->get_pageUrl().'?sk=app_'.$this->config->fb_app_id;
+            $this->config->fb_tab_url = $this->get_pageUrl().'/app_'.$this->config->fb_app_id;
         }
         $str_params = is_array($params) ? 'app_data='.urlencode(json_encode($params)) : '';
         return $this->config->fb_tab_url.($str_params ? '&'.$str_params : '');
@@ -425,7 +425,7 @@ class FacebookShell extends AbstractPlugin {
      * @return string
      */
     public static function get_pictureUrl($unique_id, $size = 'large') {
-        return 'https://graph.facebook.com/'.$unique_id.'/picture?type='.$size;
+        return '//graph.facebook.com/'.$unique_id.'/picture?type='.$size;
     }
 
     public static function get_profileUrl($unique_id) {
@@ -437,7 +437,7 @@ class FacebookShell extends AbstractPlugin {
     }
 
     public static function get_pageUrlByPageName($page_screen_name = 0, $app_id = false) {
-        return "https://www.facebook.com/".$page_screen_name.($app_id ? "?sk=app_".$app_id : '');
+        return "https://www.facebook.com/".$page_screen_name.($app_id ? "/app_".$app_id : '');
     }
 
     public static function get_addPageUrl($app_id = 0, $next_target = false) {

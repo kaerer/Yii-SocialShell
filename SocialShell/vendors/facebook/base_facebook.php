@@ -354,7 +354,7 @@ abstract class BaseFacebook
       // directly, since response isn't JSON format.
       $access_token_response = $this->_oauthRequest(
         $this->getUrl('graph', '/oauth/access_token'),
-        $params = array(
+        array(
           'client_id' => $this->getAppId(),
           'client_secret' => $this->getAppSecret(),
           'grant_type' => 'fb_exchange_token',

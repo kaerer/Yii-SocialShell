@@ -4,13 +4,13 @@ var tmp_callback = {
     'error': false
 };
 
-function in_check_login(callback_success, callback_error){
+function in_check_login(callback_success, callback_error) {
     tmp_callback.success = callback_success;
     tmp_callback.error = callback_error;
     in_login();
 }
 
-function in_login(){
+function in_login() {
     if (typeof in_login_popup !== 'undefined' && !in_login_popup.closed) {
         in_login_popup.focus();
     } else {
@@ -27,21 +27,21 @@ function in_login(){
 //);
 
 // Overwrite me !
-function in_login_callback(callback_obj){
+function in_login_callback(callback_obj) {
     in_login_popup.close();
-    if(callback_obj.error !== false){
-        if(tmp_callback.error){
+    if (callback_obj.error !== false) {
+        if (tmp_callback.error) {
             run_callback(tmp_callback.error);
         } else {
-            if(callback_obj.error === 'user_denied') {
+            if (callback_obj.error === 'user_denied') {
                 alert('Uygulamamıza katılabilmek için izin vermelisiniz.');
             }
             else {
                 alert(callback_obj.error);
             }
         }
-    } else if(callback_obj.code !== false){
-        if(tmp_callback.success) {
+    } else if (callback_obj.code !== false) {
+        if (tmp_callback.success) {
             run_callback(tmp_callback.success);
         } else {
             alert('Hoşgeldiniz');

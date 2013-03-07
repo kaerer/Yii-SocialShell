@@ -40,10 +40,10 @@ class InstagramShell extends AbstractPlugin {
                 break;
         }
         $api_object = new Instagram(array(
-                    'apiKey' => $this->config->in_key,
-                    'apiSecret' => $this->config->in_secret,
-                    'apiCallback' => $this->config->in_callback
-                ));
+            'apiKey' => $this->config->in_key,
+            'apiSecret' => $this->config->in_secret,
+            'apiCallback' => $this->config->in_callback
+        ));
 
         $this->setApi($api_object);
 
@@ -148,14 +148,16 @@ class InstagramShell extends AbstractPlugin {
                 self::setCookie('in_access_token', $result['data']->access_token);
                 $this->getApi()->setAccessToken($result['data']);
                 $this->set_accessTokenSession($this->getApi()->getAccessToken());
+                $result['active'] = true;
             }
         } else {
             $access_token = self::getCookie('in_access_token');
             if ($access_token)
                 $this->getApi()->setAccessToken($access_token);
+//            CVarDumper::dump($access_token,5,1);
         }
 
-        if ($result['code'] || $result['error']) {
+        if ($result['code'] == 200 || $result['error']) {
             $result['active'] = true;
         }
 
@@ -170,17 +172,16 @@ class InstagramShell extends AbstractPlugin {
 //        CVarDumper::dump($result,5,1);
 //        CVarDumper::dump($this->config->in_loggedin,5,1);
 
-        if ($popup && $result['active']) {
+        if ($popup || $result['active']) {
             /**
              * Js callback çağırılıyor olması sayfa sonu anlamına gelmez, callback çağrılıp sonrasında resim kayıt işlemleri vs devam ediyor olacak.
              */
             echo '<script>'."\n";
             echo 'var results = '.CJSON::encode($result).';'."\n";
-            echo 'window.opener.in_login_callback(results);'."\n";
             echo 'window.opener.in_loggedin = true;'."\n";
             echo 'window.opener.in_unique_id = "'.$this->config->in_unique_id.'";'."\n";
             echo 'window.opener.in_user_profile = results;'."\n";
-//            echo 'window.opener.console.log(results);'."\n";
+            echo 'window.opener.in_login_callback(results);'."\n";
             echo '</script>'."\n";
         }
 

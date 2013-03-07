@@ -13,8 +13,8 @@ function fb_feed(link_text, caption, description, image, link, redirect_url, tex
                 redirect_uri: (typeof redirect_url !== 'undefined') ? redirect_url : link,
                 picture: image,
                 caption: caption,
-                description: description,
-                message: textarea
+                description: description
+//                message: textarea
             },
     function(response) {
         if (response && response.post_id) {
@@ -61,7 +61,7 @@ function fb_notification_callback(response) {
     track('facebook', 'method.notification');
 }
 
-function fb_send(link, link_text, description, image) {
+function fb_send(link_text, description, image, link) {
     FB.ui({
         method: 'send',
         link: link,
@@ -128,6 +128,8 @@ function fb_get_user_profile() {
             fb_user_profile = response;
             fb_unique_id = response.id;
         });
+
+        return fb_user_profile;
     }
 
 }

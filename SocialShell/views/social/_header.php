@@ -10,7 +10,7 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
 <script type="text/javascript">
     var domainUrl = '<?php echo $socialModule->config->domain_url; ?>';
     var appName = '<?php echo CHtml::encode($socialModule->config->app_name); ?>';
-    var controller = domainUrl + '<?php echo $controller; ?>';
+    var controller = '<?php echo $controller; ?>';
 
     var shareUrl = '<?php echo $socialModule->config->share_url; ?>';
     var shareImage = '<?php echo $socialModule->config->share_image; ?>';
@@ -22,7 +22,7 @@ $controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
         var fb_page_id = '<?php echo $socialModule->config->fb_page_id; ?>';
         var fb_page_liked = <?php echo $socialModule->config->fb_page_liked ? 'true' : 'false'; ?>;
         var fb_page_signed_request = '<?php echo Yii::app()->request->getParam('signed_request')?>';
-        //var fb_loggedin = <?php echo $socialModule->config->fb_loggedin ? 'true' : 'false'; ?>;
+//        var fb_loggedin = <?php echo $socialModule->config->fb_loggedin ? 'true' : 'false'; ?>;
         var fb_loggedin = false;
         var fb_unique_id = '<?php echo $socialModule->config->fb_unique_id; ?>';
         var fb_signed_request = '<?php echo Yii::app()->request->getParam('signed_request')?>';
