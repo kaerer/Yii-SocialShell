@@ -280,7 +280,7 @@ class FacebookShell extends AbstractPlugin {
 
     public function upload_photo($album_params = array('name', 'description'), $photo_params = array('file', 'description')) {
 
-        $default_album_params = array('name' => 'uploaded photo', 'description' => 'uploaded by facebook_shell');
+        $default_album_params = array('name' => 'uploaded photo', 'description' => 'uploaded by Yii Social Module facebookShell');
         $default_photo_params = array('description' => '');
 
         $album_params = array_merge($default_album_params, $album_params);
@@ -335,7 +335,7 @@ class FacebookShell extends AbstractPlugin {
             );
             $photo = $this->getApi()->api('/'.$album_uid.'/photos', 'POST', $photo_details);
             if ($photo && isset($photo['id'])) {
-                //TODO:: gelen $photo değişkeni içinde link var mı acep? tekrar kontrol niheye
+                //TODO:: gelen $photo de?i?keni içinde link var mı acep? tekrar kontrol niheye
                 self::addAction('create_photo', $photo['id'], __METHOD__);
                 $photo_info = $this->getApi()->api('/'.$photo['id']);
                 if ($photo_info) {

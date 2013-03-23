@@ -11,7 +11,7 @@ function track(platform, action, object_id, callback){
         'signed_request': fb_signed_request,
         't': action,
         'id': object_id
-    }
+    };
 
     $.ajax({
         type    : 'POST',
