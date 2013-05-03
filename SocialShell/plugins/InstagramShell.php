@@ -64,6 +64,7 @@ class InstagramShell extends AbstractPlugin {
 //            $this->config->in_unique_id = $tmp_id;
 //        }
 //        }
+//        CVarDumper::dump($user,5,1);
 
         $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/instagram.js');
         $cs = Yii::app()->getClientScript();

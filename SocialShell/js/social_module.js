@@ -1,7 +1,7 @@
 
 // Will be overwritter in _fb.php or somewhere else
 function track(platform, action, object_id, callback){
-    if(typeof _gaq === 'object'){
+    if(typeof _gaq == 'object'){
         var targetUrl = object_id ? object_id : false;
         ga_social_track(platform, action, targetUrl);
     }

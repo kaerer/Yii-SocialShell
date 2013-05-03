@@ -37,19 +37,17 @@
             });
 
             //catch login and give permission event
-            //FB.Event.subscribe('auth.login', function(response) {
-            //???
-            //fb_login_callback(response, function(){}, function(){}, true);
-            //});
+//            FB.Event.subscribe('auth.login', function(response) {
+//                fb_login_callback(response, function(){}, function(){}, true);
+//            });
 
             //catch logout event
-            FB.Event.subscribe('auth.logout', function(response) {
-                fb_logout_callback(response);
-            });
+//            FB.Event.subscribe('auth.logout', function(response) {
+//                fb_logout_callback(response);
+//            });
 
             FB.getLoginStatus(function(response) {
                 fb_loginalready_callback(response);
-                //response.authResponse;
             }, true);
         };
 

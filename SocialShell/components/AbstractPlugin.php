@@ -144,4 +144,12 @@ abstract class AbstractPlugin {
         Yii::app()->session[$name] = $value;
     }
 
+    public static function get_protocole(){
+        return Yii::app()->getRequest()->isSecureConnection ? 'https://' : 'http://';
+    }
+
+    public static function set_protocole($url){
+        return preg_replace ('/http(s)?\:\/\//i', self::get_protocole(), $url);
+    }
+
 }

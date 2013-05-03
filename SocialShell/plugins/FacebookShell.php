@@ -41,12 +41,15 @@ class FacebookShell extends AbstractPlugin {
             }
 
             $api_object = new Facebook(array(
-                        'appId' => $this->config->fb_app_id,
-                        'secret' => $this->config->fb_app_secret,
-                        'fileUpload' => true,
-                        'cookie' => true,
-                    ));
+                'appId' => $this->config->fb_app_id,
+                'secret' => $this->config->fb_app_secret,
+                'fileUpload' => true,
+                'cookie' => true,
+            ));
             $this->setApi($api_object);
+
+            if (isset($this->config->fb_external_access_token))
+                $this->set_accessToken($this->config->fb_external_access_token);
 
             if ($this->config->fb_extend_access_token)
                 $this->set_accessToken_extended();
@@ -61,12 +64,14 @@ class FacebookShell extends AbstractPlugin {
             $this->config->fb_tab_url = $this->get_tabUrl();
         }
 
-        if (!$this->config->fb_unique_id) {
-//            $this->config->fb_unique_id = $this->getApi()->getUser();
-        }
+        if (!$silent_mode) {
+            if (!$this->config->fb_unique_id) {
+                $this->config->fb_unique_id = $this->getApi()->getUser();
+            }
 
-        if ($this->config->fb_unique_id) {
-            $this->config->fb_loggedin = true;
+            if ($this->config->fb_unique_id) {
+                $this->config->fb_loggedin = true;
+            }
         }
 
         $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/facebook.js');
@@ -394,9 +399,8 @@ class FacebookShell extends AbstractPlugin {
     public function process_pageParams($silent_mode = false) {
         $data = self::parse_signed_request($silent_mode, $this->config->fb_app_secret);
         if (is_array($data)) {
-//            foreach ($data as $k => $v) {
-//                $this->config->fb_page_params[$k] = $v;
-//            }
+            $this->config->fb_page_params = $data;
+
             if (isset($data['page'])) {
                 $this->config->fb_page_id = $data['page']['id'];
                 $this->config->fb_page_admin = $data['page']['admin'];
@@ -445,8 +449,9 @@ class FacebookShell extends AbstractPlugin {
     }
 
     public static function get_likeButton($url, $width = '120') {
-        if(!$width = (int)$width) $width = 120;
-        return '<div class="fb-like" data-href="'.trim($url).'" data-send="false" data-layout="button_count" data-width="'.$width.'" data-show-faces="false"></div>';
+        if (!$width = (int)$width)
+            $width = 120;
+        return '<div class="fb-like" data-href="'.self::set_protocole(trim($url)).'" data-send="false" data-layout="button_count" data-width="'.$width.'" data-show-faces="false"></div>';
     }
 
     public static function set_header() {
