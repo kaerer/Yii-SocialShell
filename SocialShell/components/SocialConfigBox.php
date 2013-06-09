@@ -55,7 +55,7 @@ abstract class SocialConfigBox extends stdClass {
 
     /**
      * V2 ids max 18 char,
-     * @var int
+     * @var bigint
      */
     public $fb_unique_id = null;
 

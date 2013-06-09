@@ -30,27 +30,30 @@ function fb_feed_callback(response) {
     track('facebook', 'method.feed');
 }
 
-function fb_notification(text, title, to, data, redirect_uri) {
+function fb_notification(text, title, data, to, max_recipients) {
     var params = {
         method: 'apprequests',
         message: text
     };
-    if (typeof title !== 'undefined') {
+    if (!title) {
         params['title'] = title;
     } else if (typeof appName !== 'undefined') {
         params['title'] = appName;
     }
-    if (typeof to !== 'undefined') {
+    if (typeof to !== 'undefined' && !to) {
         params['to'] = to;
     }
-    if (typeof redirect_uri !== 'undefined') {
-        params['redirect_uri'] = redirect_uri;
-    }
+//    if (typeof redirect_uri !== 'undefined') {
+//        params['redirect_uri'] = redirect_uri;
+//    }
     if (typeof data !== 'undefined') {
         params['data'] = data;
     }
 
-//    console.log(params);
+    if (typeof max_recipients !== 'undefined' && !max_recipients) {
+        params['max_recipients'] = max_recipients;
+    }
+
     FB.ui(params, function(response) {
         fb_notification_callback(response);
     });

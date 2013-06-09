@@ -19,6 +19,8 @@ class FacebookShell extends AbstractPlugin {
     private $access_token;
     private $user_info;
 
+    private $last_get_request_pagination = array();
+
     public function setApi(Facebook &$api_object) {
         $this->api_object = & $api_object;
     }
@@ -223,17 +225,25 @@ class FacebookShell extends AbstractPlugin {
         }
         if (isset($results)) {
             if (is_array($results)) {
+                if (isset($results['paging'])) {
+                    $this->last_get_request_pagination =  $results['paging'];
+                }
+
                 if (count($results) == 1 && isset($results[0])) {
                     return $results[0];
                 }
-//                elseif (isset($results['data'])) {
-//                    return $results['data'];
-//                }
+                elseif (isset($results['data'])) {
+                    return $results['data'];
+                }
             }
             return $results;
         } else {
             return false;
         }
+    }
+
+    public function get_last_get_request_pagination(){
+        return $this->last_get_request_pagination;
     }
 
     /**
@@ -269,6 +279,31 @@ class FacebookShell extends AbstractPlugin {
         }
     }
 
+    public function delete_object($object_path, $method = 'DELETE') {
+        try {
+//            if (!isset($object_params['accessToken']))
+//                $object_params['accessToken'] = $this->get_accessToken();
+            $results = $this->getApi()->api($object_path, $method); //.'?access_token='.$this->access_token()
+        } catch (FacebookApiException $exc) {
+            self::addError('delete_object', $exc->getMessage(), __METHOD__);
+        } catch (Exception $exc) {
+//            self::addError('post_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
+            self::addError('delete_object', $exc->getMessage(), __METHOD__);
+        }
+        if (isset($results)) {
+            if (is_array($results)) {
+                if (count($results) == 1 && isset($results[0])) {
+                    return $results[0];
+                } elseif (isset($results['data'])) {
+                    return $results['data'];
+                }
+            }
+            return $results;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Call fql query
      * @param type $fql
@@ -281,6 +316,14 @@ class FacebookShell extends AbstractPlugin {
         );
         $results = $this->get_object($params);
         return $results;
+    }
+
+    public function get_user_albums(){
+        return $this->get_user_data('albums');
+    }
+
+    public function get_user_album_photos($album_id){
+        return $this->get_object($album_id.'/photos');
     }
 
     public function upload_photo($album_params = array('name', 'description'), $photo_params = array('file', 'description')) {
@@ -457,6 +500,8 @@ class FacebookShell extends AbstractPlugin {
     public static function set_header() {
         #- ie fix for api
         header('P3P: CP="CAO PSA OUR"');
+//        header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+//        header('P3P: CP="CAO DSP COR CURa ADMa DEVa PSAa PSDa IVAi IVDi CONi OUR OTRi IND PHY ONL UNI FIN COM NAV INT DEM STA"');
     }
 
     public static function set_meta($property, $value) {
