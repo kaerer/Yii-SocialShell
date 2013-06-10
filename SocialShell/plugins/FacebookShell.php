@@ -216,6 +216,11 @@ class FacebookShell extends AbstractPlugin {
 
     public function get_object($object_path) {
         try {
+            $clean = array(
+                'http://graph.facebook.com',
+                'https://graph.facebook.com'
+            );
+            $object_path = str_replace($clean, '', $object_path);
             $results = $this->getApi()->api($object_path); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
             self::addError('get_object', $exc->getMessage(), __METHOD__);
@@ -242,8 +247,23 @@ class FacebookShell extends AbstractPlugin {
         }
     }
 
-    public function get_last_get_request_pagination(){
+    public function last_get_request_pagination(){
         return $this->last_get_request_pagination;
+    }
+
+    public function last_get_request_next(){
+        if(!is_object($this->last_get_request_pagination)) $this->last_get_request_pagination = (object)$this->last_get_request_pagination;
+
+        $clean = 'https://graph.facebook.com';
+        if(isset($this->last_get_request_pagination->next)) return $this->get_object($this->last_get_request_pagination->next);
+        return false;
+    }
+
+    public function last_get_request_previous(){
+        if(!is_object($this->last_get_request_pagination)) $this->last_get_request_pagination = (object)$this->last_get_request_pagination;
+
+        if(isset($this->last_get_request_pagination->previous)) return $this->get_object($this->last_get_request_pagination->previous);
+        return false;
     }
 
     /**
@@ -316,6 +336,10 @@ class FacebookShell extends AbstractPlugin {
         );
         $results = $this->get_object($params);
         return $results;
+    }
+
+    public function get_user_photos(){
+        return $this->get_user_data('photos');
     }
 
     public function get_user_albums(){

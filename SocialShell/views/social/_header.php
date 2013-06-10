@@ -5,12 +5,15 @@ $cs = Yii::app()->getClientScript();
 /* @var $r CHttpRequest */
 /* @var $socialModule SocialShellModule */
 
-$controller = (YII_DEBUG ? '/debug.php/' : '/').Yii::app()->controller->getId();
+//TODO:: controller a debug parametreli index gösterilmeli
+
+//$controller = (YII_DEBUG ? '/index-test.php/' : '/').Yii::app()->controller->getId();
+$controller = '/'.Yii::app()->controller->getId();
 ?>
 <script type="text/javascript">
     var domainUrl = '<?php echo $socialModule->config->domain_url; ?>';
     var appName = '<?php echo CHtml::encode($socialModule->config->app_name); ?>';
-    var controller = '<?php echo $controller; ?>';
+    var controller = domainUrl + '<?php echo $controller; ?>';
 
     var shareUrl = '<?php echo $socialModule->config->share_url; ?>';
     var shareImage = '<?php echo $socialModule->config->share_image; ?>';
