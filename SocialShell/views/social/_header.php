@@ -7,13 +7,14 @@ $cs = Yii::app()->getClientScript();
 
 //TODO:: controller a debug parametreli index gösterilmeli
 
-//$controller = (YII_DEBUG ? '/index-test.php/' : '/').Yii::app()->controller->getId();
-$controller = '/'.Yii::app()->controller->getId();
+$script_file = end(explode('/', Yii::app()->request->scriptUrl));
+$controller = (YII_DEBUG ? $script_file.'/' : '').Yii::app()->controller->getId();
+//$controller = '/'.Yii::app()->controller->getId();
 ?>
 <script type="text/javascript">
-    var domainUrl = '<?php echo $socialModule->config->domain_url; ?>';
-    var appName = '<?php echo CHtml::encode($socialModule->config->app_name); ?>';
+    var domainUrl = '<?php echo $socialModule->config->domain_url; ?>/';
     var controller = domainUrl + '<?php echo $controller; ?>';
+    var appName = '<?php echo CHtml::encode($socialModule->config->app_name); ?>';
 
     var shareUrl = '<?php echo $socialModule->config->share_url; ?>';
     var shareImage = '<?php echo $socialModule->config->share_image; ?>';

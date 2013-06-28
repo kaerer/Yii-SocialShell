@@ -12,7 +12,8 @@
  *
  * Facebook type comes from vendors.facebook.Facebook
  */
-class FacebookShell extends AbstractPlugin {
+class FacebookShell extends AbstractPlugin
+{
 
     const VERSION = 0.5;
 
@@ -21,11 +22,13 @@ class FacebookShell extends AbstractPlugin {
 
     private $last_get_request_pagination = array();
 
-    public function setApi(Facebook &$api_object) {
+    public function setApi(Facebook &$api_object)
+    {
         $this->api_object = & $api_object;
     }
 
-    public function start_api($silent_mode = false) {
+    public function start_api($silent_mode = false)
+    {
         Yii::import('SocialShell.vendors.facebook.Facebook');
         self::set_header();
 
@@ -76,20 +79,22 @@ class FacebookShell extends AbstractPlugin {
             }
         }
 
-        $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/facebook.js');
+        $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell') . '/js/facebook.js');
         $cs = Yii::app()->getClientScript();
         $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
 
         return $this->getApi();
     }
 
-    public function get_uniqueID() {
+    public function get_uniqueID()
+    {
         if (!$this->config->fb_unique_id)
             $this->config->fb_unique_id = $this->getApi()->getUser();
         return $this->config->fb_unique_id;
     }
 
-    public function get_loginUrl($permissions = false, $redirect_url = false) {
+    public function get_loginUrl($permissions = false, $redirect_url = false)
+    {
         $params = array(
             'scope' => $permissions ? $permissions : $this->config->fb_permissions,
             'redirect_uri' => $redirect_url ? $redirect_url : $this->config->share_url
@@ -99,22 +104,26 @@ class FacebookShell extends AbstractPlugin {
         return $loginUrl;
     }
 
-    public function get_logoutUrl() {
+    public function get_logoutUrl()
+    {
         $loginUrl = $this->getApi()->getLogoutUrl();
         return $loginUrl;
     }
 
-    public function set_accessToken_extended() {
+    public function set_accessToken_extended()
+    {
         return ($this->getApi()->setExtendedAccessToken() === false) ? false : $this->get_accessToken();
     }
 
-    public function get_accessToken() {
+    public function get_accessToken()
+    {
         $this->access_token = $this->getApi()->getAccessToken();
         $this->set_accessTokenSession($this->access_token);
         return $this->access_token;
     }
 
-    public function set_accessToken($access_token = false, $renew = false) {
+    public function set_accessToken($access_token = false, $renew = false)
+    {
         if ($access_token) {
             $this->access_token = (true === is_object($access_token)) ? $access_token->access_token : $access_token;
             $this->getApi()->setAccessToken($this->access_token);
@@ -131,11 +140,13 @@ class FacebookShell extends AbstractPlugin {
         }
     }
 
-    public function get_taken_permissions() {
+    public function get_taken_permissions()
+    {
         return $this->get_object('/me/permissions');
     }
 
-    public function check_permissions($permissions_string = false) {
+    public function check_permissions($permissions_string = false)
+    {
         $taken_permissions = $this->get_permissions();
 
         $needed_permissions = explode(',', $permissions_string ? $permissions_string : $this->config->fb_permissions);
@@ -177,7 +188,8 @@ class FacebookShell extends AbstractPlugin {
      * @param type $picture
      * @return boolean
      */
-    public function post_feed($link_text, $link, $description = '', $picture = false, $caption = false, $to_unique_id = false) {
+    public function post_feed($link_text, $link, $description = '', $picture = false, $caption = false, $to_unique_id = false)
+    {
         try {
             $attachment = array(
                 //'access_token' => $this->access_token(),
@@ -190,7 +202,7 @@ class FacebookShell extends AbstractPlugin {
                 $attachment['caption'] = $caption;
             if ($picture)
                 $attachment['picture'] = $picture;
-            $result = $this->getApi()->api('/'.($to_unique_id ? $to_unique_id : 'me').'/feed/', 'POST', $attachment);
+            $result = $this->getApi()->api('/' . ($to_unique_id ? $to_unique_id : 'me') . '/feed/', 'POST', $attachment);
             self::addAction('post_feed', $result, __METHOD__);
             return $result;
         } catch (FacebookApiException $exc) {
@@ -202,19 +214,24 @@ class FacebookShell extends AbstractPlugin {
         }
     }
 
-    public function get_user_info($unique_id = false) {
-        if (!$this->user_info) {
-            $this->user_info = $this->get_object('/'.($unique_id ? $unique_id : 'me'));
+    public function get_user_info($unique_id = false)
+    {
+        $unique_id = ($unique_id ? $unique_id : 'me');
+        if (!isset($this->user_info[$unique_id])) {
+            $this->user_info[$unique_id] = $this->get_object('/' . $unique_id);
         }
-        return $this->user_info;
+        return $this->user_info[$unique_id];
     }
 
-    public function get_user_data($path = '', $unique_id = false) {
-        $results = $this->get_object('/'.($unique_id ? $unique_id : 'me').'/'.trim($path, '/'));
+    public function get_user_data($path = '', $unique_id = false)
+    {
+        $results = $this->get_object('/' . ($unique_id ? $unique_id : 'me') . '/' . trim($path, '/'));
         return $results;
     }
 
-    public function get_object($object_path) {
+    public function get_object($object_path)
+    {
+        $results = false;
         try {
             $clean = array(
                 'http://graph.facebook.com',
@@ -228,41 +245,41 @@ class FacebookShell extends AbstractPlugin {
 //            self::addError('get_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
             self::addError('get_object', $exc->getMessage(), __METHOD__);
         }
-        if (isset($results)) {
-            if (is_array($results)) {
-                if (isset($results['paging'])) {
-                    $this->last_get_request_pagination =  $results['paging'];
-                }
 
-                if (count($results) == 1 && isset($results[0])) {
-                    return $results[0];
-                }
-                elseif (isset($results['data'])) {
-                    return $results['data'];
-                }
+//        echo '<hr>';
+        if (is_array($results)) {
+            if (isset($results['paging'])) {
+                $this->last_get_request_pagination = $results['paging'];
             }
-            return $results;
-        } else {
-            return false;
+
+            if (count($results) == 1 && isset($results[0])) {
+                return $results[0];
+            } elseif (!isset($results['id']) && isset($results['data'])) {
+                return $results['data'];
+            }
         }
+        return $results;
     }
 
-    public function last_get_request_pagination(){
+    public function last_get_request_pagination()
+    {
         return $this->last_get_request_pagination;
     }
 
-    public function last_get_request_next(){
-        if(!is_object($this->last_get_request_pagination)) $this->last_get_request_pagination = (object)$this->last_get_request_pagination;
+    public function last_get_request_next()
+    {
+        if (!is_object($this->last_get_request_pagination)) $this->last_get_request_pagination = (object)$this->last_get_request_pagination;
 
         $clean = 'https://graph.facebook.com';
-        if(isset($this->last_get_request_pagination->next)) return $this->get_object($this->last_get_request_pagination->next);
+        if (isset($this->last_get_request_pagination->next)) return $this->get_object($this->last_get_request_pagination->next);
         return false;
     }
 
-    public function last_get_request_previous(){
-        if(!is_object($this->last_get_request_pagination)) $this->last_get_request_pagination = (object)$this->last_get_request_pagination;
+    public function last_get_request_previous()
+    {
+        if (!is_object($this->last_get_request_pagination)) $this->last_get_request_pagination = (object)$this->last_get_request_pagination;
 
-        if(isset($this->last_get_request_pagination->previous)) return $this->get_object($this->last_get_request_pagination->previous);
+        if (isset($this->last_get_request_pagination->previous)) return $this->get_object($this->last_get_request_pagination->previous);
         return false;
     }
 
@@ -274,7 +291,8 @@ class FacebookShell extends AbstractPlugin {
      * @param type $method
      * @return boolean
      */
-    public function post_object($object_path, $object_params = array(), $method = 'POST') {
+    public function post_object($object_path, $object_params = array(), $method = 'POST')
+    {
         try {
 //            if (!isset($object_params['accessToken']))
 //                $object_params['accessToken'] = $this->get_accessToken();
@@ -299,7 +317,8 @@ class FacebookShell extends AbstractPlugin {
         }
     }
 
-    public function delete_object($object_path, $method = 'DELETE') {
+    public function delete_object($object_path, $method = 'DELETE')
+    {
         try {
 //            if (!isset($object_params['accessToken']))
 //                $object_params['accessToken'] = $this->get_accessToken();
@@ -329,7 +348,8 @@ class FacebookShell extends AbstractPlugin {
      * @param type $fql
      * @return type
      */
-    public function get_fql($fql) {
+    public function get_fql($fql)
+    {
         $params = array(
             'method' => 'fql.query',
             'query' => $fql,
@@ -338,19 +358,23 @@ class FacebookShell extends AbstractPlugin {
         return $results;
     }
 
-    public function get_user_photos(){
+    public function get_user_photos()
+    {
         return $this->get_user_data('photos');
     }
 
-    public function get_user_albums(){
+    public function get_user_albums()
+    {
         return $this->get_user_data('albums');
     }
 
-    public function get_user_album_photos($album_id){
-        return $this->get_object($album_id.'/photos');
+    public function get_user_album_photos($album_id)
+    {
+        return $this->get_object($album_id . '/photos');
     }
 
-    public function upload_photo($album_params = array('name', 'description'), $photo_params = array('file', 'description')) {
+    public function upload_photo($album_params = array('name', 'description'), $photo_params = array('file', 'description'))
+    {
 
         $default_album_params = array('name' => 'uploaded photo', 'description' => 'uploaded by Yii Social Module facebookShell');
         $default_photo_params = array('description' => '');
@@ -402,14 +426,14 @@ class FacebookShell extends AbstractPlugin {
             //Upload a photo to album of ID...
             $photo_details = array(
                 //'access_token' => $this->access_token(),
-                'image' => '@'.realpath($photo_params['file']),
+                'image' => '@' . realpath($photo_params['file']),
                 'message' => $photo_params['description'],
             );
-            $photo = $this->getApi()->api('/'.$album_uid.'/photos', 'POST', $photo_details);
+            $photo = $this->getApi()->api('/' . $album_uid . '/photos', 'POST', $photo_details);
             if ($photo && isset($photo['id'])) {
                 //TODO:: gelen $photo de?i?keni içinde link var mı acep? tekrar kontrol niheye
                 self::addAction('create_photo', $photo['id'], __METHOD__);
-                $photo_info = $this->getApi()->api('/'.$photo['id']);
+                $photo_info = $this->getApi()->api('/' . $photo['id']);
                 if ($photo_info) {
                     $this->ids['upload_photo'] = $photo_info;
                     $result = $photo_info['link'];
@@ -424,19 +448,22 @@ class FacebookShell extends AbstractPlugin {
         return $result;
     }
 
-    public function get_addingAppToTabUrl($redirect_url = false) {
-        return 'https://www.facebook.com/dialog/pagetab?app_id='.$this->config->fb_app_id.'&next='.($redirect_url ? $redirect_url : $this->get_tabUrl());
+    public function get_addingAppToTabUrl($redirect_url = false)
+    {
+        return 'https://www.facebook.com/dialog/pagetab?app_id=' . $this->config->fb_app_id . '&next=' . ($redirect_url ? $redirect_url : $this->get_tabUrl());
     }
 
-    public function get_tabUrl($params = false) {
+    public function get_tabUrl($params = false)
+    {
         if (!$this->config->fb_tab_url) {
-            $this->config->fb_tab_url = $this->get_pageUrl().'/app_'.$this->config->fb_app_id;
+            $this->config->fb_tab_url = $this->get_pageUrl() . '/app_' . $this->config->fb_app_id;
         }
-        $str_params = is_array($params) ? 'app_data='.urlencode(json_encode($params)) : '';
-        return $this->config->fb_tab_url.($str_params ? '&'.$str_params : '');
+        $str_params = is_array($params) ? 'app_data=' . urlencode(json_encode($params)) : '';
+        return $this->config->fb_tab_url . ($str_params ? '&' . $str_params : '');
     }
 
-    public function get_pageUrl() {
+    public function get_pageUrl()
+    {
         if (!$this->config->fb_page_url) {
             if ($this->config->fb_page_name) {
                 $this->config->fb_page_url = self::get_pageUrlByPageName($this->config->fb_page_name);
@@ -447,23 +474,28 @@ class FacebookShell extends AbstractPlugin {
         return $this->config->fb_page_url;
     }
 
-    public function get_canvasUrl() {
+    public function get_canvasUrl()
+    {
         return $this->config->fb_canvas_url;
     }
 
-    public function is_page_admin() {
+    public function is_page_admin()
+    {
         return (bool)$this->config->fb_page_admin;
     }
 
-    public function is_page() {
+    public function is_page()
+    {
         return (bool)$this->config->fb_page_id;
     }
 
-    public function is_page_liked() {
+    public function is_page_liked()
+    {
         return (bool)$this->config->fb_page_liked;
     }
 
-    public function process_pageParams($silent_mode = false) {
+    public function process_pageParams($silent_mode = false)
+    {
         $data = self::parse_signed_request($silent_mode, $this->config->fb_app_secret);
         if (is_array($data)) {
             $this->config->fb_page_params = $data;
@@ -495,54 +527,65 @@ class FacebookShell extends AbstractPlugin {
      * square (50x50), small (50 x variable height), normal (100 x variable height), large (200 x variable height)"
      * @return string
      */
-    public static function get_pictureUrl($unique_id, $size = 'large') {
-        return '//graph.facebook.com/'.$unique_id.'/picture?type='.$size;
+    public static function get_pictureUrl($unique_id, $size = 'large')
+    {
+        return '//graph.facebook.com/' . $unique_id . '/picture?type=' . $size;
     }
 
-    public static function get_profileUrl($unique_id) {
-        return 'https://www.facebook.com/profile.php?id='.$unique_id;
+    public static function get_profileUrl($unique_id)
+    {
+        return 'https://www.facebook.com/profile.php?id=' . $unique_id;
     }
 
-    public static function get_pageUrlByID($page_id = 0, $app_id = false) {
-        return "https://www.facebook.com/pages/-/".$page_id.($app_id ? "?sk=app_".$app_id : '');
+    public static function get_pageUrlByID($page_id = 0, $app_id = false)
+    {
+        return "https://www.facebook.com/pages/-/" . $page_id . ($app_id ? "?sk=app_" . $app_id : '');
     }
 
-    public static function get_pageUrlByPageName($page_screen_name = 0, $app_id = false) {
-        return "https://www.facebook.com/".$page_screen_name.($app_id ? "/app_".$app_id : '');
+    public static function get_pageUrlByPageName($page_screen_name = 0, $app_id = false)
+    {
+        return "https://www.facebook.com/" . $page_screen_name . ($app_id ? "/app_" . $app_id : '');
     }
 
-    public static function get_addPageUrl($app_id = 0, $next_target = false) {
-        return 'https://www.facebook.com/dialog/pagetab?app_id='.$app_id.'&next='.($next_target ? $next_target : 'http://facebook.com');
+    public static function get_addPageUrl($app_id = 0, $next_target = false)
+    {
+        return 'https://www.facebook.com/dialog/pagetab?app_id=' . $app_id . '&next=' . ($next_target ? $next_target : 'http://facebook.com');
     }
 
-    public static function get_likeButton($url, $width = '120') {
+    public static function get_likeButton($url, $width = '120')
+    {
         if (!$width = (int)$width)
             $width = 120;
-        return '<div class="fb-like" data-href="'.self::set_protocole(trim($url)).'" data-send="false" data-layout="button_count" data-width="'.$width.'" data-show-faces="false"></div>';
+        return '<div class="fb-like" data-href="' . self::set_protocole(trim($url)) . '" data-send="false" data-layout="button_count" data-width="' . $width . '" data-show-faces="false"></div>';
     }
 
-    public static function set_header() {
+    public static function set_header()
+    {
         #- ie fix for api
         header('P3P: CP="CAO PSA OUR"');
 //        header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 //        header('P3P: CP="CAO DSP COR CURa ADMa DEVa PSAa PSDa IVAi IVDi CONi OUR OTRi IND PHY ONL UNI FIN COM NAV INT DEM STA"');
     }
 
-    public static function set_meta($property, $value) {
+    public static function set_meta($property, $value)
+    {
         Yii::app()->clientScript->registerMetaTag($value, null, null, array('property' => $property));
     }
 
     /* System functions */
 
-    private function get_accessTokenSession() {
+    private function get_accessTokenSession()
+    {
         return self::getSession('fb_access_token');
     }
 
-    private function set_accessTokenSession($access_token) {
+    private function set_accessTokenSession($access_token)
+    {
         self::setSession('fb_access_token', $access_token);
     }
 
-    public static function parse_signed_request($silent_mode = false, $fb_app_secret = false) {
+    public static function parse_signed_request($silent_mode = false, $fb_app_secret = false)
+    {
 
         $signed_request = Yii::app()->request->getParam('signed_request');
 
@@ -578,7 +621,8 @@ class FacebookShell extends AbstractPlugin {
         return $data;
     }
 
-    private static function base64_url_decode($input) {
+    private static function base64_url_decode($input)
+    {
         return base64_decode(strtr($input, '-_', '+/'));
     }
 

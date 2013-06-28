@@ -144,6 +144,8 @@ abstract class SocialConfigBox extends stdClass {
      */
     public $in_callback_redirect_to = null;
 
+    public $in_callback_redirect_protocol = 'https';
+
     /**
      * Auth Permissions
      *

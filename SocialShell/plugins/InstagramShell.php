@@ -25,8 +25,12 @@ class InstagramShell extends AbstractPlugin {
         Yii::import('SocialShell.vendors.instagram.Instagram');
         $r = Yii::app()->request;
         if (!$this->config->in_callback) {
+            if($this->config->in_callback_redirect_to){
+                Yii::app()->session['in_callback_redirect_to'] = $this->config->in_callback_redirect_to;
+            }
+
             Yii::app()->session['in_callback_started'] = $r->getPathInfo();
-            Yii::app()->session['in_callback_redirect_to'] = $this->config->in_callback_redirect_to;
+            Yii::app()->session['in_callback_redirect_protocol'] = $this->config->in_callback_redirect_protocol;
             $this->config->in_callback = str_replace('http://', 'https://', $this->config->domain_url).'/callback';
         }
 
@@ -182,7 +186,7 @@ class InstagramShell extends AbstractPlugin {
             echo 'window.opener.in_loggedin = true;'."\n";
             echo 'window.opener.in_unique_id = "'.$this->config->in_unique_id.'";'."\n";
             echo 'window.opener.in_user_profile = results;'."\n";
-            echo 'window.opener.in_login_callback(results);'."\n";
+            echo 'if (typeof window.opener.in_login_callback === "function") window.opener.in_login_callback(results); else window.close()'."\n";
             echo '</script>'."\n";
         }
 
