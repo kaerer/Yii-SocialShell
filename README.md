@@ -11,8 +11,7 @@ github: https://github.com/kaerer/Yii-SocialShell<br>
 wiki: https://github.com/kaerer/Yii-SocialShell/wiki<br>
 
 Structure: <br>
-* <br>
-| <br>
+|. <br>
 |- SocialShell: module files, put them in modules folder in protected<br>
 |- text: controller and view examples<br>
 
