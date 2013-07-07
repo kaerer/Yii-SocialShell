@@ -10,10 +10,12 @@ email: erce.erozbek@gmail.com<br>
 github: https://github.com/kaerer/Yii-SocialShell<br>
 wiki: https://github.com/kaerer/Yii-SocialShell/wiki<br>
 
-*
-|- SocialShell: module files, put them in modules folder in protected
-|- text: controller and view examples
--
+Structure: <br>
+* <br>
+| <br>
+|- SocialShell: module files, put them in modules folder in protected<br>
+|- text: controller and view examples<br>
+
 
 TODO LIST:<br>
 5.  twitter plugini yazılacak<br>
