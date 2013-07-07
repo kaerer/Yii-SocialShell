@@ -8,7 +8,7 @@ $cs = Yii::app()->getClientScript();
 //TODO:: controller a debug parametreli index gösterilmeli
 
 $script_file = end(explode('/', Yii::app()->request->scriptUrl));
-$controller = (YII_DEBUG ? $script_file . '/' : '') . Yii::app()->controller->getId();
+$controller = '/'.(YII_DEBUG ? $script_file . '/' : '') . Yii::app()->controller->getId();
 /*
 var fb_loggedin = <?php echo $socialModule->config->fb_loggedin ? 'true' : 'false'; ?>;
 $controller = '/'.Yii::app()->controller->getId();
