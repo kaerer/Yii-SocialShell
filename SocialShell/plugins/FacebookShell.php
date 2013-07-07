@@ -5,7 +5,8 @@
  *
  * @author Erce Erözbek <erce.erozbek@gmail.com>
  *
- * @property Facebook $api_object Facebook SDK Object
+ * Facebook SDK Object
+ * @property Facebook $api_object
  * @property string $access_token Facebook SDK access token
  *
  * @property array $user_info Facebook user data
@@ -15,18 +16,26 @@
 class FacebookShell extends AbstractPlugin
 {
 
-    const VERSION = 0.5;
+    const VERSION = 0.52;
 
     private $access_token;
     private $user_info;
 
     private $last_get_request_pagination = array();
 
+    /**
+     * @param Facebook $api_object
+     */
     public function setApi(Facebook &$api_object)
     {
         $this->api_object = & $api_object;
     }
 
+    /**
+     * @param bool $silent_mode
+     * @return $this
+     * @throws Exception
+     */
     public function start_api($silent_mode = false)
     {
         Yii::import('SocialShell.vendors.facebook.Facebook');
@@ -122,13 +131,29 @@ class FacebookShell extends AbstractPlugin
         return $this->access_token;
     }
 
+    public function get_appAccessToken()
+    {
+        $return = file_get_contents('https://graph.facebook.com/oauth/access_token?client_id='.$this->config->fb_app_id.'&client_secret='.$this->config->fb_app_secret.'&grant_type=client_credentials');
+
+        if(strpos($return, 'access_token=') == 0){
+            $this->access_token = str_replace('access_token=', '', $return);
+        }
+
+        return $this->access_token;
+    }
+
+    /**
+     * @param bool $access_token
+     * @param bool $renew
+     * @return int 1:ok 2,0: error
+     */
     public function set_accessToken($access_token = false, $renew = false)
     {
         if ($access_token) {
             $this->access_token = (true === is_object($access_token)) ? $access_token->access_token : $access_token;
             $this->getApi()->setAccessToken($this->access_token);
             $this->set_accessTokenSession($this->access_token);
-            return true;
+            return 1;
         } elseif ($renew || $this->get_accessTokenSession() !== false) {
             $this->access_token = $this->get_accessTokenSession();
             $this->getApi()->setAccessToken($this->access_token);
@@ -136,7 +161,7 @@ class FacebookShell extends AbstractPlugin
             return 2;
         } else {
             self::addError('access_token', 'empty', __METHOD__);
-            return false;
+            return 0;
         }
     }
 

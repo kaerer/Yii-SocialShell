@@ -10,13 +10,16 @@ abstract class AbstractPlugin {
     protected $api_object;
 
     /**
-     *
+     * Return instance of the plugin class
      * @return $this->api_object
      */
     public function &getApi() {
         return $this->api_object;
     }
 
+    /**
+     * @param $api_object
+     */
     public function setApi(&$api_object) {
         $this->api_object = & $api_object;
     }

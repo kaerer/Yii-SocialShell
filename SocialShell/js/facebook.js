@@ -5,18 +5,17 @@ function fb_feed(link_text, caption, description, image, link, redirect_url, tex
     if (textarea === undefined)
         textarea = '';
 
-    FB.ui(
-            {
-                method: 'feed',
-                name: link_text,
-                link: link,
-                redirect_uri: (typeof redirect_url !== 'undefined') ? redirect_url : link,
-                picture: image,
-                caption: caption,
-                description: description
+    FB.ui({
+        method: 'feed',
+        name: link_text,
+        link: link,
+        redirect_uri: (typeof redirect_url !== 'undefined') ? redirect_url : link,
+        picture: image,
+        source: image,
+        caption: caption,
+        description: description
 //                message: textarea
-            },
-    function(response) {
+    }, function (response) {
         if (response && response.post_id) {
             fb_feed_callback(response);
         } else {
@@ -30,7 +29,27 @@ function fb_feed_callback(response) {
     track('facebook', 'method.feed');
 }
 
-function fb_notification(text, title, data, to, max_recipients) {
+function fb_share_picture(text, image_url, album_id) {
+
+    FB.api('/' + album_id ? album_id : 'me' + '/photos', 'post', {
+            message: text,
+            access_token: fb_access_token,
+            url: image_url
+        }, function (response) {
+            if (response && response.post_id) {
+                fb_share_picture_callback(response);
+            } else {
+                fb_share_picture_callback();
+            }
+        });
+}
+
+// Overwrite me !
+function fb_share_picture_callback(response) {
+    track('facebook', 'method.share_picture');
+}
+
+function fb_notification(text, title, data, to, max_recipients, exclude_ids) {
     var params = {
         method: 'apprequests',
         message: text
@@ -43,6 +62,9 @@ function fb_notification(text, title, data, to, max_recipients) {
     if (typeof to !== 'undefined' && !to) {
         params['to'] = to;
     }
+    if (typeof exclude_ids === 'object' && !exclude_ids && exclude_ids.length > 0) {
+        params['exclude_ids'] = exclude_ids;
+    }
 //    if (typeof redirect_uri !== 'undefined') {
 //        params['redirect_uri'] = redirect_uri;
 //    }
@@ -54,7 +76,7 @@ function fb_notification(text, title, data, to, max_recipients) {
         params['max_recipients'] = max_recipients;
     }
 
-    FB.ui(params, function(response) {
+    FB.ui(params, function (response) {
         fb_notification_callback(response);
     });
 }
@@ -66,19 +88,19 @@ function fb_notification_callback(response) {
 
 function fb_send(link_text, description, image, link) {
     FB.ui({
-        method: 'send',
-        link: link,
-        name: link_text,
-        description: description,
-        picture: image
-    },
-    function(response) {
-        if (response && response.post_id) {
-            fb_send_callback(response);
-        } else {
-            fb_send_callback();
-        }
-    });
+            method: 'send',
+            link: link,
+            name: link_text,
+            description: description,
+            picture: image
+        },
+        function (response) {
+            if (response && response.post_id) {
+                fb_send_callback(response);
+            } else {
+                fb_send_callback();
+            }
+        });
 }
 
 // Overwrite me !
@@ -97,12 +119,12 @@ function fb_check_login(callback_success, callback_error) {
 }
 
 function fb_login(permissions, callback_success, callback_error) {
-    FB.login(function(response) {
+    FB.login(function (response) {
         fb_loggedin = true;
         fb_login_callback(response, callback_success, callback_error, true);
     }, {
         scope: (permissions ? permissions : fb_permissions)
-                //, display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
+        //, display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
     });
 }
 
@@ -113,7 +135,7 @@ function fb_login_callback(response, callback_success, callback_error, disable_t
         fb_get_user_profile();
         run_callback(callback_success, response);
         if (typeof disable_track === 'undefined')
-            track('facebook', 'auth.yes', function() {
+            track('facebook', 'auth.yes', function () {
             });
     } else {
         if (callback_error) {
@@ -127,7 +149,7 @@ function fb_login_callback(response, callback_success, callback_error, disable_t
 
 function fb_get_user_profile() {
     if (fb_loggedin) {
-        FB.api('/me', function(response) {
+        FB.api('/me', function (response) {
             fb_user_profile = response;
             fb_unique_id = response.id;
         });
