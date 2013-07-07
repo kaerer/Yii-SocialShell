@@ -112,5 +112,5 @@ FacebookShell::set_meta("fb:app_id", $config->fb_app_id);
             ?>
         </div>
     </div>
-<?php
-$social->end_view();
+    <?php
+    $social->end_view();
