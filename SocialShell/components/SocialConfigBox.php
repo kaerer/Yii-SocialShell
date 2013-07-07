@@ -108,6 +108,7 @@ abstract class SocialConfigBox extends stdClass {
     public $fb_tab_params = array();
     public $fb_canvas_url = null; //http://apps.facebook.com/sendekatil/
     public $fb_loggedin = null;
+    public $fb_disable_track = true;
 
     /*
      * ** Twitter Params **

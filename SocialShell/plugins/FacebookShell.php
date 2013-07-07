@@ -215,7 +215,6 @@ class FacebookShell extends AbstractPlugin
      */
     public function post_feed($link_text, $link, $description = '', $picture = false, $caption = false, $to_unique_id = false)
     {
-        try {
             $attachment = array(
                 //'access_token' => $this->access_token(),
                 'link' => $link,
@@ -227,16 +226,20 @@ class FacebookShell extends AbstractPlugin
                 $attachment['caption'] = $caption;
             if ($picture)
                 $attachment['picture'] = $picture;
-            $result = $this->getApi()->api('/' . ($to_unique_id ? $to_unique_id : 'me') . '/feed/', 'POST', $attachment);
-            self::addAction('post_feed', $result, __METHOD__);
-            return $result;
-        } catch (FacebookApiException $exc) {
-            self::addError('post_feed', $exc, __METHOD__);
-            return false;
-        } catch (Exception $exc) {
-            self::addError('post_feed', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
-            return false;
-        }
+        $result = $this->post_object('/' . ($to_unique_id ? $to_unique_id : 'me') . '/feed/', $attachment, 'POST', __METHOD__);
+        return $result;
+    }
+
+    public function post_notification($to_unique_id, $template, $app_access_token = false)
+    {
+        if(!$app_access_token) $app_access_token = $this->socialModule->obj_facebook->get_appAccessToken();
+
+        $attachment = array(
+            'template' => $template,
+            'access_token' => $app_access_token,
+        );
+        $result = $this->post_object('/' . $to_unique_id . '/notifications', $attachment, 'POST', __METHOD__);;
+        return $result;
     }
 
     public function get_user_info($unique_id = false)
@@ -256,34 +259,7 @@ class FacebookShell extends AbstractPlugin
 
     public function get_object($object_path)
     {
-        $results = false;
-        try {
-            $clean = array(
-                'http://graph.facebook.com',
-                'https://graph.facebook.com'
-            );
-            $object_path = str_replace($clean, '', $object_path);
-            $results = $this->getApi()->api($object_path); //.'?access_token='.$this->access_token()
-        } catch (FacebookApiException $exc) {
-            self::addError('get_object', $exc->getMessage(), __METHOD__);
-        } catch (Exception $exc) {
-//            self::addError('get_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
-            self::addError('get_object', $exc->getMessage(), __METHOD__);
-        }
-
-//        echo '<hr>';
-        if (is_array($results)) {
-            if (isset($results['paging'])) {
-                $this->last_get_request_pagination = $results['paging'];
-            }
-
-            if (count($results) == 1 && isset($results[0])) {
-                return $results[0];
-            } elseif (!isset($results['id']) && isset($results['data'])) {
-                return $results['data'];
-            }
-        }
-        return $results;
+        return $this->post_object($object_path, array(), 'GET', __METHOD__);
     }
 
     public function last_get_request_pagination()
@@ -316,56 +292,37 @@ class FacebookShell extends AbstractPlugin
      * @param type $method
      * @return boolean
      */
-    public function post_object($object_path, $object_params = array(), $method = 'POST')
+    public function post_object($object_path, $object_params = array(), $method = 'POST', $action_name = 'post_object')
     {
+        $results = false;
         try {
 //            if (!isset($object_params['accessToken']))
 //                $object_params['accessToken'] = $this->get_accessToken();
             $results = $this->getApi()->api($object_path, $method, $object_params); //.'?access_token='.$this->access_token()
         } catch (FacebookApiException $exc) {
-            self::addError('post_object', $exc->getMessage(), __METHOD__);
+            self::addError($action_name, $exc->getMessage(), __METHOD__);
         } catch (Exception $exc) {
 //            self::addError('post_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
-            self::addError('post_object', $exc->getMessage(), __METHOD__);
+            self::addError($action_name, $exc->getMessage(), __METHOD__);
         }
-        if (isset($results)) {
-            if (is_array($results)) {
-                if (count($results) == 1 && isset($results[0])) {
-                    return $results[0];
-                } elseif (isset($results['data'])) {
-                    return $results['data'];
-                }
+        if (is_array($results)) {
+            if (isset($results['paging'])) {
+                $this->last_get_request_pagination = $results['paging'];
             }
-            return $results;
-        } else {
-            return false;
+
+            if (count($results) == 1 && isset($results[0])) {
+                return $results[0];
+            } elseif (!isset($results['id']) && isset($results['data'])) {
+                return $results['data'];
+            }
         }
+        return $results;
+
     }
 
-    public function delete_object($object_path, $method = 'DELETE')
+    public function delete_object($object_path)
     {
-        try {
-//            if (!isset($object_params['accessToken']))
-//                $object_params['accessToken'] = $this->get_accessToken();
-            $results = $this->getApi()->api($object_path, $method); //.'?access_token='.$this->access_token()
-        } catch (FacebookApiException $exc) {
-            self::addError('delete_object', $exc->getMessage(), __METHOD__);
-        } catch (Exception $exc) {
-//            self::addError('post_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
-            self::addError('delete_object', $exc->getMessage(), __METHOD__);
-        }
-        if (isset($results)) {
-            if (is_array($results)) {
-                if (count($results) == 1 && isset($results[0])) {
-                    return $results[0];
-                } elseif (isset($results['data'])) {
-                    return $results['data'];
-                }
-            }
-            return $results;
-        } else {
-            return false;
-        }
+        return $this->post_object($object_path, array(), 'DELETE', __METHOD__);
     }
 
     /**

@@ -113,31 +113,35 @@ function fb_check_login(callback_success, callback_error) {
         fb_login_callback(fb_global_response, callback_success, callback_error);
         return true;
     } else {
-        fb_login(false, callback_success, callback_error);
-        return false;
+        return fb_login(false, callback_success, callback_error);
     }
 }
 
 function fb_login(permissions, callback_success, callback_error) {
+    //"display" must be one of "popup", "dialog", "iframe", "touch", "async", "hidden", or "none"
     FB.login(function (response) {
-        fb_loggedin = true;
         fb_login_callback(response, callback_success, callback_error, true);
     }, {
         scope: (permissions ? permissions : fb_permissions)
-        //, display: loggedin ? 'iframe' : 'page' //page, popup, iframe, or touch
+//        , display: fb_loggedin ? 'dialog' : 'popup'
     });
+
+    // dont trust, need to return after callback returns
+//    return fb_loggedin;
 }
 
 // Overwrite me !
 function fb_login_callback(response, callback_success, callback_error, disable_track) {
     fb_response_parser(response);
     if ((response && response.status === 'connected') || (fb_unique_id && fb_loggedin)) {
+        fb_loggedin = true;
         fb_get_user_profile();
         run_callback(callback_success, response);
-        if (typeof disable_track === 'undefined')
+        if (!disable_track || !fb_disable_track)
             track('facebook', 'auth.yes', function () {
             });
     } else {
+        fb_loggedin = false;
         if (callback_error) {
             run_callback(callback_error, response);
         } else {
@@ -145,6 +149,7 @@ function fb_login_callback(response, callback_success, callback_error, disable_t
         }
         //        track('facebook', 'auth.no', function(){});
     }
+    return fb_loggedin;
 }
 
 function fb_get_user_profile() {

@@ -11,6 +11,7 @@
  */
 class TestController extends Controller {
 
+    public $layout = '//test/layout';
     /**
      * Social Shell Module instance
      * @var SocialShellModule
@@ -26,7 +27,7 @@ class TestController extends Controller {
     public function actionIndex() {
 
         if (!YII_DEBUG) {
-            $url = 'http://www.workattack.com';
+            $url = 'http://www.turkdatabase.com';
             yii::app()->request->redirect($url);
         }
 
@@ -58,6 +59,7 @@ class TestController extends Controller {
         $this->socialConfig->fb_app_id = '143684392442216';
         $this->socialConfig->fb_app_secret = '60e4cc8bf31016623bcfb514a8607e5b';
         $this->socialConfig->fb_permissions = 'user_likes, user_interests, user_birthday, user_hometown';
+        $this->socialConfig->fb_disable_track = true;
 
         #- Run SocialShell
         $this->socialModule->loadConfig($this->socialConfig);
@@ -151,33 +153,6 @@ class TestController extends Controller {
             'social' => $social,
             'config' => $config
         ));
-    }
-
-    public function actionObject() {
-        $post = $_POST;
-        $status = false;
-        $error = array(
-            'name' => 'Boş Bırakmayınız'
-        );
-
-        if (count($post) > 0) {
-            $status = true;
-        } else {
-            $error = true;
-        }
-
-        $result = array(
-            'success' => $status,
-            'error' => $error,
-            'hooop' => 'Napıyon? :)',
-            'post' => $post,
-        );
-        echo CJSON::encode($result);
-    }
-
-    public function actionSacinTarzin() {
-        $this->layout = false;
-        $this->render('//demo/sacintarzin');
     }
 
 }
