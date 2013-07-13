@@ -7,8 +7,8 @@
  */
 abstract class AbstractBase{
 
-    protected $actions = array();
-    protected $errors = array();
+    public static $actions = array();
+    public static $errors = array();
 
     /**
      * Config Data
@@ -59,31 +59,31 @@ abstract class AbstractBase{
         $this->loaded = true;
     }
 
-    public function getErrors($key = false) {
-        return $key ? (isset($this->errors[$key]) ? $this->errors[$key] : false) : $this->errors;
+    public static function getErrors($key = false) {
+        return $key ? (isset(self::$errors[$key]) ? self::$errors[$key] : false) : self::$errors;
     }
 
-    public function addError($key, $value, $group = 0) {
+    public static function addError($key, $value, $group = 0) {
         $error = array(
             $key => $value
         );
-        $this->errors[$group] = $error;
+        self::$errors[$group] = $error;
     }
 
-    public function cleanErrors() {
-        $this->errors = array();
+    public static function cleanErrors() {
+        self::$errors = array();
     }
 
-    public function getActions($key = false) {
-        return $key ? (isset($this->actions[$key]) ? $this->actions[$key] : false) : $this->errors;
+    public static function getActions($key = false) {
+        return $key ? (isset(self::$actions[$key]) ? self::$actions[$key] : false) : self::$actions;
     }
 
-    public function addAction($key, $value, $group = 0) {
-        $this->actions[$group][$key][] = $value;
+    public static function addAction($key, $value, $group = 0) {
+        self::$actions[$group][$key][] = $value;
     }
 
-    public function cleanActions() {
-        $this->actions = array();
+    public static function cleanActions() {
+        self::$actions = array();
     }
 
     public static function redirect($target, $js = true) {
@@ -96,7 +96,7 @@ abstract class AbstractBase{
     }
 
     public function debug() {
-        return array('IDS' => $this->getActions(), 'ERRORS' => $this->getErrors());
+        return array('IDS' => self::getActions(), 'ERRORS' => self::getErrors());
     }
 
     public static function setCookie($name, $value) {
@@ -115,6 +115,14 @@ abstract class AbstractBase{
 
     public static function setSession($name, $value) {
         Yii::app()->session[$name] = $value;
+    }
+
+    public static function get_protocole(){
+        return Yii::app()->getRequest()->isSecureConnection ? 'https://' : 'http://';
+    }
+
+    public static function set_protocole($url){
+        return preg_replace ('/http(s)?\:\/\//i', self::get_protocole(), $url);
     }
 
 
