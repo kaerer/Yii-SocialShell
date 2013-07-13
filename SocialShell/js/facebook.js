@@ -3,7 +3,7 @@ var fb_global_response;
 function fb_feed(link_text, caption, description, image, link, redirect_url, textarea) {
 
     if (textarea === undefined)
-        textarea = '';
+        textarea = ' ';
 
     FB.ui({
         method: 'feed',
@@ -162,6 +162,12 @@ function fb_get_user_profile() {
         return fb_user_profile;
     }
 
+}
+
+function fb_get_user_profile_picture(unique_id, size)
+{
+    size = size || 'large';
+    return '//graph.facebook.com/' + unique_id + '/picture?type=' + size;
 }
 
 // Overwrite me !

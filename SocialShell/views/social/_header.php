@@ -40,8 +40,7 @@ $controller = '/'.Yii::app()->controller->getId();
         <?php endif; ?>
 
         <?php if ($socialModule->config->twitter_api): ?>
-        //        var tw_permissions = '
-        <?php // echo $socialModule->config->tw_permissions; ?>';
+        //        var tw_permissions = '<?php // echo $socialModule->config->tw_permissions; ?>';
         var tw_loggedin = false;
         <?php endif; ?>
 

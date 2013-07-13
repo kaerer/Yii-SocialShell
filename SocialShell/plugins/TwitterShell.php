@@ -35,9 +35,11 @@ class TwitterShell extends AbstractPlugin {
 //                    'cookie' => true,
 //                ));
 
-        $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/twitter.js');
-        $cs = Yii::app()->getClientScript();
-        $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
+        if(!$silent_mode){
+            $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/twitter.js');
+            $cs = Yii::app()->getClientScript();
+            $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
+        }
 
         return $this->getApi();
     }

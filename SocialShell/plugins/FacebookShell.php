@@ -20,6 +20,7 @@ class FacebookShell extends AbstractPlugin
 
     private $access_token;
     private $user_info;
+    private $graphapi_url = 'https://graph.facebook.com';
 
     private $last_get_request_pagination = array();
 
@@ -69,7 +70,10 @@ class FacebookShell extends AbstractPlugin
                 $this->set_accessToken_extended();
             else
                 $this->get_accessToken();
-        }
+        } /*else {
+            $api_object = new Facebook(array());
+            $this->setApi($api_object);
+        }*/
 
         $this->process_pageParams($silent_mode);
 
@@ -88,9 +92,11 @@ class FacebookShell extends AbstractPlugin
             }
         }
 
-        $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell') . '/js/facebook.js');
-        $cs = Yii::app()->getClientScript();
-        $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
+        if (!$silent_mode) {
+            $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell') . '/js/facebook.js');
+            $cs = Yii::app()->getClientScript();
+            $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
+        }
 
         return $this->getApi();
     }
@@ -133,9 +139,9 @@ class FacebookShell extends AbstractPlugin
 
     public function get_appAccessToken()
     {
-        $return = file_get_contents('https://graph.facebook.com/oauth/access_token?client_id='.$this->config->fb_app_id.'&client_secret='.$this->config->fb_app_secret.'&grant_type=client_credentials');
+        $return = file_get_contents('https://graph.facebook.com/oauth/access_token?client_id=' . $this->config->fb_app_id . '&client_secret=' . $this->config->fb_app_secret . '&grant_type=client_credentials');
 
-        if(strpos($return, 'access_token=') == 0){
+        if (strpos($return, 'access_token=') == 0) {
             $this->access_token = str_replace('access_token=', '', $return);
         }
 
@@ -215,31 +221,37 @@ class FacebookShell extends AbstractPlugin
      */
     public function post_feed($link_text, $link, $description = '', $picture = false, $caption = false, $to_unique_id = false)
     {
-            $attachment = array(
-                //'access_token' => $this->access_token(),
-                'link' => $link,
-                'name' => $link_text,
-                'description' => $description,
+        $attachment = array(
+            //'access_token' => $this->access_token(),
+            'link' => $link,
+            'name' => $link_text,
+            'description' => $description,
 //                'message' => "",
-            );
-            if ($caption)
-                $attachment['caption'] = $caption;
-            if ($picture)
-                $attachment['picture'] = $picture;
+        );
+        if ($caption)
+            $attachment['caption'] = $caption;
+        if ($picture)
+            $attachment['picture'] = $picture;
         $result = $this->post_object('/' . ($to_unique_id ? $to_unique_id : 'me') . '/feed/', $attachment, 'POST', __METHOD__);
         return $result;
     }
 
     public function post_notification($to_unique_id, $template, $app_access_token = false)
     {
-        if(!$app_access_token) $app_access_token = $this->socialModule->obj_facebook->get_appAccessToken();
+        if (!$app_access_token) $app_access_token = $this->socialModule->obj_facebook->get_appAccessToken();
 
         $attachment = array(
             'template' => $template,
             'access_token' => $app_access_token,
         );
         $result = $this->post_object('/' . $to_unique_id . '/notifications', $attachment, 'POST', __METHOD__);;
-        return $result;
+        if (is_array($result) && isset($result['success']) && $result['success']) {
+            self::addAction('post_notification', array($to_unique_id, true), __METHOD__);
+            return true;
+        }
+
+        self::addError('post_notification', array($to_unique_id, false), __METHOD__);
+        return false;
     }
 
     public function get_user_info($unique_id = false)
@@ -257,11 +269,6 @@ class FacebookShell extends AbstractPlugin
         return $results;
     }
 
-    public function get_object($object_path)
-    {
-        return $this->post_object($object_path, array(), 'GET', __METHOD__);
-    }
-
     public function last_get_request_pagination()
     {
         return $this->last_get_request_pagination;
@@ -271,7 +278,7 @@ class FacebookShell extends AbstractPlugin
     {
         if (!is_object($this->last_get_request_pagination)) $this->last_get_request_pagination = (object)$this->last_get_request_pagination;
 
-        $clean = 'https://graph.facebook.com';
+        $clean = $this->graphapi_url;
         if (isset($this->last_get_request_pagination->next)) return $this->get_object($this->last_get_request_pagination->next);
         return false;
     }
@@ -282,6 +289,22 @@ class FacebookShell extends AbstractPlugin
 
         if (isset($this->last_get_request_pagination->previous)) return $this->get_object($this->last_get_request_pagination->previous);
         return false;
+    }
+
+    public function get_object($object_path)
+    {
+        if ($this->getApi() && $this->get_accessToken()) {
+            return $this->post_object($object_path, array(), 'GET', __METHOD__);
+        } else {
+            return $this->get_object_curl($object_path);
+        }
+    }
+
+    public function get_object_curl($object_path)
+    {
+        $target = $this->graphapi_url . '/?id=' . $object_path;
+        $result = file_get_contents($target);
+        return CJSON::decode($result);
     }
 
     /**
@@ -305,6 +328,7 @@ class FacebookShell extends AbstractPlugin
 //            self::addError('post_object', array($exc->getMessage(), $exc->getTraceAsString()), __METHOD__);
             self::addError($action_name, $exc->getMessage(), __METHOD__);
         }
+
         if (is_array($results)) {
             if (isset($results['paging'])) {
                 $this->last_get_request_pagination = $results['paging'];
@@ -442,6 +466,41 @@ class FacebookShell extends AbstractPlugin
         }
         $str_params = is_array($params) ? 'app_data=' . urlencode(json_encode($params)) : '';
         return $this->config->fb_tab_url . ($str_params ? '&' . $str_params : '');
+    }
+
+    /**
+     * Return facebook page or user name
+     *
+     * page_url graphapi sonucunda gelen array de olabilir
+     *
+     * @param $page_url
+     * @return bool|mixed
+     */
+    public function get_pageNameFromUrl($page_url)
+    {
+//        $array2 = parse_url($page_url);
+//        $array2['path'];
+
+        $result = false;
+        $pattern = '#(?:https?://(?:www\.)?)?facebook\.com/#';
+        if(is_array($page_url)){
+            if(isset($page_url['link'])){
+                $page_url = $page_url['link'];
+            } elseif(isset($page_url['username'])){
+                #- page saklı ise id değerinde page url dönüyordu
+                $result = $this->get_pageNameFromUrl($page_url['username']);
+            } elseif(isset($page_url['id']) && !is_numeric(isset($page_url['id']))){
+                #- page saklı ise id değerinde page url dönüyordu
+                $result = $this->get_pageNameFromUrl($page_url['id']);
+            } else {
+                $page_url = false;
+            }
+        }
+
+        if($page_url && !$result){
+            $result = preg_replace($pattern, '', $page_url);
+        }
+        return $result;
     }
 
     public function get_pageUrl()

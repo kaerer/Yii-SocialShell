@@ -70,9 +70,11 @@ class InstagramShell extends AbstractPlugin {
 //        }
 //        CVarDumper::dump($user,5,1);
 
-        $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/instagram.js');
-        $cs = Yii::app()->getClientScript();
-        $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
+        if(!$silent_mode){
+            $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell').'/js/instagram.js');
+            $cs = Yii::app()->getClientScript();
+            $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
+        }
     }
 
     /**

@@ -19,7 +19,8 @@ Yii::Import('SocialShell.plugins.*');
  *
  * @property array $user_info Facebook user data
  */
-class SocialShellModule extends AbstractShell /* CWebModule */ {
+class SocialShellModule extends AbstractShell /* CWebModule */
+{
 
     const VERSION = 0.4;
 
@@ -41,15 +42,16 @@ class SocialShellModule extends AbstractShell /* CWebModule */ {
      */
     public $obj_instagram;
 
-    public function init() {
+//    public function init() {
 //        $this->setImport(array(
 //            'SocialShell.models.*',
 //            'SocialShell.components.*',
 //            'SocialShell.plugins.*',
 //        ));
-    }
+//    }
 
-    public function start_api($silent_mode = false) {
+    public function start_api($silent_mode = false)
+    {
         try {
             if ($this->config->facebook_api) {
                 $this->obj_facebook = new FacebookShell();
@@ -71,11 +73,13 @@ class SocialShellModule extends AbstractShell /* CWebModule */ {
         }
     }
 
-    public function start_view() {
+    public function start_view()
+    {
         return Yii::app()->controller->renderPartial('SocialShell.views.social._header', array('socialModule' => $this));
     }
 
-    public function end_view() {
+    public function end_view()
+    {
         return Yii::app()->controller->renderPartial('SocialShell.views.social._footer', array('socialModule' => $this));
     }
 
