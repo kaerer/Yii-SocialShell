@@ -1,15 +1,17 @@
+/**
+ * @var FB Object
+ */
 var fb_global_response;
 
 function fb_feed(link_text, caption, description, image, link, redirect_url, textarea) {
 
-    if (textarea === undefined)
-        textarea = ' ';
+    textarea = textarea || ' ';
 
     FB.ui({
         method: 'feed',
         name: link_text,
         link: link,
-        redirect_uri: (typeof redirect_url !== 'undefined') ? redirect_url : link,
+        redirect_uri: redirect_url || link,
         picture: image,
         source: image,
         caption: caption,
@@ -32,16 +34,16 @@ function fb_feed_callback(response) {
 function fb_share_picture(text, image_url, album_id) {
 
     FB.api('/' + album_id ? album_id : 'me' + '/photos', 'post', {
-            message: text,
-            access_token: fb_access_token,
-            url: image_url
-        }, function (response) {
-            if (response && response.post_id) {
-                fb_share_picture_callback(response);
-            } else {
-                fb_share_picture_callback();
-            }
-        });
+        message: text,
+        access_token: fb_access_token,
+        url: image_url
+    }, function (response) {
+        if (response && response.post_id) {
+            fb_share_picture_callback(response);
+        } else {
+            fb_share_picture_callback();
+        }
+    });
 }
 
 // Overwrite me !
@@ -55,25 +57,25 @@ function fb_notification(text, title, data, to, max_recipients, exclude_ids) {
         message: text
     };
     if (!title) {
-        params['title'] = title;
+        params.title = title;
     } else if (typeof appName !== 'undefined') {
-        params['title'] = appName;
+        params.title = appName;
     }
     if (typeof to !== 'undefined' && !to) {
-        params['to'] = to;
+        params.to = to;
     }
     if (typeof exclude_ids === 'object' && !exclude_ids && exclude_ids.length > 0) {
-        params['exclude_ids'] = exclude_ids;
+        params.exclude_ids = exclude_ids;
     }
 //    if (typeof redirect_uri !== 'undefined') {
-//        params['redirect_uri'] = redirect_uri;
+//        params.redirect_uri = redirect_uri;
 //    }
     if (typeof data !== 'undefined') {
-        params['data'] = data;
+        params.data = data;
     }
 
     if (typeof max_recipients !== 'undefined' && !max_recipients) {
-        params['max_recipients'] = max_recipients;
+        params.max_recipients = max_recipients;
     }
 
     FB.ui(params, function (response) {

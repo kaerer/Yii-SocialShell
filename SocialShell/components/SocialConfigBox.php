@@ -54,6 +54,12 @@ abstract class SocialConfigBox extends stdClass {
     public $fb_app_secret = null;
 
     /**
+     *
+     * @var string
+     */
+    public $fb_app_namespace = null;
+
+    /**
      * V2 ids max 18 char,
      * @var bigint
      */
@@ -145,7 +151,7 @@ abstract class SocialConfigBox extends stdClass {
      */
     public $in_callback_redirect_to = null;
 
-    public $in_callback_redirect_protocol = 'https';
+    public $in_callback_redirect_protocol = false;
 
     /**
      * Auth Permissions

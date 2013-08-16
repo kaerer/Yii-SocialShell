@@ -15,6 +15,12 @@ $controller = '/'.Yii::app()->controller->getId();
 */
 ?>
     <script type="text/javascript">
+        /**
+         * SocialShell
+         * @author  Erce Erözbek erce.erozbek@gmail.com
+         *
+         *
+         */
         var domainUrl = <?php echo CJavaScript::encode($socialModule->config->domain_url); ?>;
         var controller = domainUrl + <?php echo CJavaScript::encode($controller); ?>;
         var appName = <?php echo CJavaScript::encode($socialModule->config->app_name); ?>;

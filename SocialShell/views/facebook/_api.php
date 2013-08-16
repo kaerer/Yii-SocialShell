@@ -1,4 +1,6 @@
+<?php /* @var $this FacebookController */ ?>
 <?php /* @var $socialModule SocialShellModule */ ?>
+<?php /* @var $socialConfig SocialConfig */ ?>
 <?php if ($socialModule->config->facebook_api): ?>
     <!-- Facebook api -->
     <div id="fb-root"></div>
@@ -10,14 +12,14 @@
                 status: true, // check login status
                 cookie: true, // enable cookies to allow the server to access the session
                 xfbml: true,  // parse XFBML
-                channelUrl: '<?php echo $socialModule->config->domain_url; ?>/channel.html'
+                channelUrl: '<?php echo $this->socialConfig->domain_url;?>/channel.html'
             });
             <?php else: ?>
             FB.init({
                 status: true, // check login status
                 cookie: true, // enable cookies to allow the server to access the session
                 xfbml: true,  // parse XFBML
-                channelUrl: '<?php echo $socialModule->config->domain_url; ?>/channel.html'
+                channelUrl: '//channel.html'
             });
             <?php endif; ?>
 
@@ -60,6 +62,6 @@
             js.async = true;
             js.src = "//connect.facebook.net/<?= $socialModule->config->locale ?>/all" + (debug ? "/debug" : "") + ".js";
             ref.parentNode.insertBefore(js, ref);
-        }(document, /*debug*/ false));
+        }(document, <?php echo CJavaScript::encode(YII_DEBUG ? true : false); ?>)); ///*debug*/ false
     </script>
 <?php endif; ?>

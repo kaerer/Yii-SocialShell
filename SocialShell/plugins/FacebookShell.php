@@ -16,7 +16,7 @@
 class FacebookShell extends AbstractPlugin
 {
 
-    const VERSION = 0.52;
+    const VERSION = 0.6;
 
     private $access_token;
     private $user_info;
@@ -291,10 +291,10 @@ class FacebookShell extends AbstractPlugin
         return false;
     }
 
-    public function get_object($object_path)
+    public function get_object($object_path, $params = array())
     {
         if ($this->getApi() && $this->get_accessToken()) {
-            return $this->post_object($object_path, array(), 'GET', __METHOD__);
+            return $this->post_object($object_path, $params, 'GET', __METHOD__);
         } else {
             return $this->get_object_curl($object_path);
         }
@@ -356,11 +356,14 @@ class FacebookShell extends AbstractPlugin
      */
     public function get_fql($fql)
     {
+//        $params = array(
+//            'method' => 'fql.query',
+//            'query' => $fql,
+//        );
         $params = array(
-            'method' => 'fql.query',
-            'query' => $fql,
+            'q' => $fql,
         );
-        $results = $this->get_object($params);
+        $results = $this->get_object('/fql', $params);
         return $results;
     }
 
@@ -483,13 +486,13 @@ class FacebookShell extends AbstractPlugin
 
         $result = false;
         $pattern = '#(?:https?://(?:www\.)?)?facebook\.com/#';
-        if(is_array($page_url)){
-            if(isset($page_url['link'])){
+        if (is_array($page_url)) {
+            if (isset($page_url['link'])) {
                 $page_url = $page_url['link'];
-            } elseif(isset($page_url['username'])){
+            } elseif (isset($page_url['username'])) {
                 #- page saklı ise id değerinde page url dönüyordu
                 $result = $this->get_pageNameFromUrl($page_url['username']);
-            } elseif(isset($page_url['id']) && !is_numeric(isset($page_url['id']))){
+            } elseif (isset($page_url['id']) && !is_numeric(isset($page_url['id']))) {
                 #- page saklı ise id değerinde page url dönüyordu
                 $result = $this->get_pageNameFromUrl($page_url['id']);
             } else {
@@ -497,7 +500,7 @@ class FacebookShell extends AbstractPlugin
             }
         }
 
-        if($page_url && !$result){
+        if ($page_url && !$result) {
             $result = preg_replace($pattern, '', $page_url);
         }
         return $result;
@@ -527,11 +530,50 @@ class FacebookShell extends AbstractPlugin
 
     public function is_page()
     {
-        return (bool)$this->config->fb_page_id;
+        switch (true) {
+            #- app e gelen get parametresi
+            case (bool)Yii::app()->request->getQuery('request_ids'):
+                #- app e gelen get parametresi
+            case (bool)Yii::app()->request->getQuery('fb_source'):
+//            case Yii::app()->request->getQuery('fb_source') == 'notification':
+
+            case (bool)Yii::app()->request->getQuery('notif_t'):
+//            case Yii::app()->request->getQuery('notif_t') == 'app_notification':
+                return false;
+                break;
+            #- idsi alınmış mı
+            case !$this->config->fb_page_id:
+//            case Yii::app()->request->getPost('signed_request'):
+                return 0;
+                break;
+            default:
+                return true;
+                break;
+        }
     }
 
-    public function is_page_liked()
+    /**
+     * to test page is liked give page_id or keep it empty to check like for the page user in
+     * @param bool $page_id
+     * @return bool
+     */
+    public function is_page_liked($page_id = false, $fid = false)
     {
+        if ($page_id && is_numeric($page_id)) {
+            $result = $this->get_object('/me/likes/' . $page_id);
+
+//            $target = ($fid ? $fid : ($this->get_uniqueID() ? $this->get_uniqueID() : 'me()'));
+//            $fql = 'SELECT uid FROM page_fan WHERE page_id = ' . $page_id . ' and uid=' . $target;
+//            $result = $this->get_fql($fql);
+
+//            if (YII_DEBUG) CVarDumper::dump(
+//                array(
+//                    $result,
+////                    $fql,
+//                    $this->get_accessToken()
+//                ), 5, 1);
+            return ($result && is_array($result)) ? true : false;
+        }
         return (bool)$this->config->fb_page_liked;
     }
 
