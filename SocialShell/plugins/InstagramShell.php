@@ -18,7 +18,10 @@ class InstagramShell extends AbstractPlugin
     private $access_token;
     private $user_info;
 
-    public function setApi(Instagram &$api_object)
+    /**
+     * @param $api_object Instagram
+     */
+    public function setApi(&$api_object)
     {
         $this->api_object = & $api_object;
     }
@@ -26,19 +29,24 @@ class InstagramShell extends AbstractPlugin
     public function start_api($silent_mode = false)
     {
         Yii::import('SocialShell.vendors.instagram.Instagram');
+        $domain = $this->config->domain_url;
         $r = Yii::app()->request;
         if (!$this->config->in_callback) {
-            $domain = SocialConfig::changeProtocole($this->config->domain_url, $this->config->in_callback_redirect_protocol);
-            if (!$this->config->in_callback_redirect_to) {
-                $this->config->in_callback_redirect_to = $domain . '/' . Yii::app()->controller->getId() . '/callback';
-            }
-
-            Yii::app()->session['in_callback_redirect_protocol'] = $this->config->in_callback_redirect_protocol;
-            Yii::app()->session['in_callback_redirect_to'] = $this->config->in_callback_redirect_to;
-            Yii::app()->session['in_callback_started'] = $r->getPathInfo();
+//            $domain = SocialConfig::changeProtocole($this->config->domain_url, $this->config->in_callback_redirect_protocol == 'https' ? true : false );
             $this->config->in_callback = $domain.'/callback';
 //            '/' . end(explode('/', Yii::app()->request->scriptFile)) .
         }
+
+        if (!$this->config->in_callback_redirect_to) {
+            $this->config->in_callback_redirect_to = $domain . '/' . Yii::app()->controller->getId() . '/callback';
+        }
+
+        if($this->config->in_callback_redirect_protocol){
+            Yii::app()->session['in_callback_redirect_protocol'] = $this->config->in_callback_redirect_protocol;
+        }
+
+        Yii::app()->session['in_callback_redirect_to'] = $this->config->in_callback_redirect_to;
+        Yii::app()->session['in_callback_started'] = $r->getPathInfo();
 
         if (!$silent_mode) {
             switch (true) {

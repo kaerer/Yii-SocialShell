@@ -61,10 +61,10 @@ function print_r(theObj, return_data){
 }
 
 function open_popup(url, w, h, name){
-
-    if(typeof w === 'undefined') w = 600;
-    if(typeof h === 'undefined') h = 400;
-    if(typeof name === 'undefined') name = 'popup_' + rand(10, 99);
+    'use strict';
+    w = w || 600;
+    h = h || 400;
+    name = name || 'popup_' + rand(10, 99);
 
     var left = (screen.width/2)-(w/2);
     var top = (screen.height/2)-(h/2);
@@ -76,7 +76,7 @@ function open_popup(url, w, h, name){
 }
 
 function open_window(url, name, params){
-
+    'use strict';
     var windowx = window.open(url, name, params);
     if (windowx.focus)
     {
@@ -96,8 +96,8 @@ function rand(min, max) {
     // %          note 1: See the commented out code below for a version which will work with our experimental (though probably unnecessary) srand() function)
     // *     example 1: rand(1, 1);
     // *     returns 1: 1    var argc = arguments.length;
-    if(typeof min === 'undefined') min = 0;
-    if(typeof max === 'undefined') max = 2147483647;
+    min = min || 0;
+    max = max || 2147483647;
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 

@@ -16,7 +16,7 @@
 class FacebookShell extends AbstractPlugin
 {
 
-    const VERSION = 0.6;
+    const VERSION = 0.65;
 
     private $access_token;
     private $user_info;
@@ -25,9 +25,9 @@ class FacebookShell extends AbstractPlugin
     private $last_get_request_pagination = array();
 
     /**
-     * @param Facebook $api_object
+     * @param $api_object Facebook
      */
-    public function setApi(Facebook &$api_object)
+    public function setApi(&$api_object)
     {
         $this->api_object = & $api_object;
     }
@@ -63,13 +63,16 @@ class FacebookShell extends AbstractPlugin
             ));
             $this->setApi($api_object);
 
-            if (isset($this->config->fb_external_access_token))
-                $this->set_accessToken($this->config->fb_external_access_token);
+            if ($this->config->fb_external_access_token){
+                $this->set_accessToken($this->config->fb_external_access_token, false, true);
+            }
 
-            if ($this->config->fb_extend_access_token)
+            if ($this->config->fb_extend_access_token){
                 $this->set_accessToken_extended();
-            else
-                $this->get_accessToken();
+            }
+
+            $access_token = $this->get_accessToken(false);
+            $this->config_access_token($access_token);
         } /*else {
             $api_object = new Facebook(array());
             $this->setApi($api_object);
@@ -90,9 +93,7 @@ class FacebookShell extends AbstractPlugin
             if ($this->config->fb_unique_id) {
                 $this->config->fb_loggedin = true;
             }
-        }
 
-        if (!$silent_mode) {
             $urlScript = Yii::app()->assetManager->publish(Yii::getPathOfAlias('SocialShell') . '/js/facebook.js');
             $cs = Yii::app()->getClientScript();
             $cs->registerScriptFile($urlScript, CClientScript::POS_HEAD);
@@ -125,16 +126,16 @@ class FacebookShell extends AbstractPlugin
         return $loginUrl;
     }
 
+    /**
+     * WTF?? neden bu burada ne işe yarar !?
+     * @return bool
+     */
     public function set_accessToken_extended()
     {
-        return ($this->getApi()->setExtendedAccessToken() === false) ? false : $this->get_accessToken();
-    }
-
-    public function get_accessToken()
-    {
-        $this->access_token = $this->getApi()->getAccessToken();
-        $this->set_accessTokenSession($this->access_token);
-        return $this->access_token;
+        $extended_access_token = $this->getApi()->setExtendedAccessToken();
+        $access_token = $this->get_accessToken(false);
+        $this->config_access_token($access_token);
+        return $extended_access_token !== false ? $access_token : false;
     }
 
     public function get_appAccessToken()
@@ -148,27 +149,58 @@ class FacebookShell extends AbstractPlugin
         return $this->access_token;
     }
 
+    public function get_accessToken($check_session = true)
+    {
+        $access_token = false;
+        if ($check_session) {
+            $access_token = $this->get_accessTokenSession();
+        }
+
+        if (!$access_token || !$check_session) {
+            $access_token = $this->getApi() ? $this->getApi()->getAccessToken() : false;
+        }
+//        $this->set_accessTokenSession($this->access_token);
+        $this->config_access_token($access_token);
+        return $access_token;
+    }
+
     /**
+     * set access token innerly for facebookshell lol
      * @param bool $access_token
-     * @param bool $renew
+     * @param bool $renew Renew from session to fb api
+     * @param bool $set_api to set access token on fb api otherwise set accesstoken for facebookShell
      * @return int 1:ok 2,0: error
      */
-    public function set_accessToken($access_token = false, $renew = false)
+    public function set_accessToken($access_token = false, $renew = false, $set_api = true)
     {
-        if ($access_token) {
-            $this->access_token = (true === is_object($access_token)) ? $access_token->access_token : $access_token;
-            $this->getApi()->setAccessToken($this->access_token);
-            $this->set_accessTokenSession($this->access_token);
-            return 1;
-        } elseif ($renew || $this->get_accessTokenSession() !== false) {
-            $this->access_token = $this->get_accessTokenSession();
-            $this->getApi()->setAccessToken($this->access_token);
-            $this->set_accessTokenSession($this->access_token);
-            return 2;
-        } else {
-            self::addError('access_token', 'empty', __METHOD__);
-            return 0;
+        $access_token = (true === is_object($access_token)) ? $access_token->access_token : $access_token;
+        if ($access_token && !$renew) {
+            if ($set_api) $this->getApi()->setAccessToken($access_token);
+            $result = true;
+        } elseif ($renew && ($access_token = $this->get_accessTokenSession()) !== false) {
+            $this->getApi()->setAccessToken($access_token);
+            $result = 2;
         }
+
+        if(!$access_token) {
+            self::addError('access_token', 'empty', __METHOD__);
+            $result = false;
+        } else {
+            $this->config_access_token($access_token);
+        }
+        return $result;
+    }
+
+    public function config_access_token($access_token = false)
+    {
+        if (!$access_token) {
+            self::addError('access_token', 'empty', __METHOD__);
+            return false;
+        }
+        $this->set_accessTokenSession($access_token);
+        $this->access_token = $access_token;
+
+        return true;
     }
 
     public function get_taken_permissions()
@@ -258,7 +290,7 @@ class FacebookShell extends AbstractPlugin
     {
         $unique_id = ($unique_id ? $unique_id : 'me');
         if (!isset($this->user_info[$unique_id])) {
-            $this->user_info[$unique_id] = $this->get_object('/' . $unique_id);
+            $this->user_info[$unique_id] = $this->get_user_data('/', $unique_id);
         }
         return $this->user_info[$unique_id];
     }
@@ -334,9 +366,10 @@ class FacebookShell extends AbstractPlugin
                 $this->last_get_request_pagination = $results['paging'];
             }
 
-            if (count($results) == 1 && isset($results[0])) {
+            if (!isset($results['paging']) && count($results) == 1 && isset($results[0])) {
                 return $results[0];
             } elseif (!isset($results['id']) && isset($results['data'])) {
+                /* TODO:: data nın yanındaki değerler lazım olmayacak mı ? var mı yok sanki !id ? */
                 return $results['data'];
             }
         }
@@ -397,8 +430,8 @@ class FacebookShell extends AbstractPlugin
             'message' => $album_params['description'],
         );
 
+        $album_uid = false;
         try {
-            $album_uid = false;
             $albums = $this->getApi()->api('/me/albums');
             if (is_array($albums['data'])) {
                 foreach ($albums['data'] as $a) {
@@ -612,7 +645,7 @@ class FacebookShell extends AbstractPlugin
      */
     public static function get_pictureUrl($unique_id, $size = 'large')
     {
-        return '//graph.facebook.com/' . $unique_id . '/picture?type=' . $size;
+        return '//graph.facebook.com/' . ($unique_id ? $unique_id : 1) . '/picture?type=' . $size;
     }
 
     public static function get_profileUrl($unique_id)
@@ -646,7 +679,11 @@ class FacebookShell extends AbstractPlugin
     {
         #- ie fix for api
         header('P3P: CP="CAO PSA OUR"');
-//        header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+//        header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+//        header('P3P: CP="NOI ADM DEV COM NAV OUR STP"');
+//        header('P3P: CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"');
+//        header('P3P: CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"');
+//        header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 //        header('P3P: CP="CAO DSP COR CURa ADMa DEVa PSAa PSDa IVAi IVDi CONi OUR OTRi IND PHY ONL UNI FIN COM NAV INT DEM STA"');
     }
 
@@ -672,7 +709,7 @@ class FacebookShell extends AbstractPlugin
 
         $signed_request = Yii::app()->request->getParam('signed_request');
 
-        if (empty($signed_request) || !$signed_request || strpos($signed_request, '.') === false) {
+        if (empty($signed_request) || !$signed_request || strpos($signed_request, '.', strpos($signed_request, '.')) === false) {
             self::addError('signed_request', 'not valid', __METHOD__);
             return false;
         }
@@ -695,7 +732,7 @@ class FacebookShell extends AbstractPlugin
             $expected_sig = hash_hmac('sha256', $payload, $fb_app_secret, $raw = true);
 
             if ($sig !== $expected_sig) {
-//                self::addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($fb_app_secret)), __METHOD__);
+                self::addError('sign_notMatched - might_signed_request_injection', array('sig' => $sig, 'expected_sig' => $expected_sig, 'secret' => strlen($fb_app_secret)), __METHOD__);
                 if (!$silent_mode)
                     return false;
             }

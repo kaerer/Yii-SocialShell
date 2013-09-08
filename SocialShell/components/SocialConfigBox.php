@@ -60,12 +60,21 @@ abstract class SocialConfigBox extends stdClass {
     public $fb_app_namespace = null;
 
     /**
+     * Try to extend the access token of user
+     * @var bool
+     */
+    public $fb_extend_access_token = false;
+    /**
      * V2 ids max 18 char,
      * @var bigint
      */
     public $fb_unique_id = null;
 
-    public $fb_extend_access_token = false;
+    /**
+     * Try to set the access_token
+     * @var bool
+     */
+    public $fb_external_access_token = false;
 
     /**
      * Auth Permissions

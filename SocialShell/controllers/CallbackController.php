@@ -12,14 +12,18 @@ class CallbackController extends Controller
         $r = Yii::app()->request;
         $count = $r->getParam('count');
 
-        /*CVarDumper::dump(array(
-            Yii::app()->session['in_callback_redirect_to'],
-            Yii::app()->session['in_callback_started'],
-            Yii::app()->session->getSessionID(),
-        ),5,1);*/
+//        if (YII_DEBUG) {
+//            CVarDumper::dump(array(
+////                $_SESSION,
+//                Yii::app()->session['in_callback_redirect_to'],
+//                Yii::app()->session['in_callback_started'],
+//                Yii::app()->session->getSessionID(),
+//            ), 5, 1);
+//            exit();
+//        }
 
-        if (Yii::app()->session['in_callback_redirect_to']) {
-            $target = Yii::app()->session['in_callback_redirect_to'];
+        $target = Yii::app()->session['in_callback_redirect_to'];
+        if ($target) {
 //            Yii::app()->session['in_callback_started']
             $target = rtrim($target, '/') . '/?' . $this->callback_params . '=' . urlencode(http_build_query($_REQUEST, '', '&amp;'));
 
@@ -27,12 +31,11 @@ class CallbackController extends Controller
             unset(Yii::app()->session['in_callback_redirect_to']);
         } else {
 //            ' . $script_file . '/
-            $target = SocialConfig::getDomain() . '/callback/?count='.++$count;
-            $target = SocialConfig::changeProtocole($target, $r->getIsSecureConnection() ? 'https' : 'http');
+            $target = SocialConfig::getDomain() . '/callback/?' . http_build_query($_REQUEST, '', '&amp;') . '&count=' . ++$count;
+            $target = SocialConfig::changeProtocole($target, $r->getIsSecureConnection() ? false : true);
         }
 
-        if(!$count)
-        {
+        if ($count < 3) {
             $this->redirect($target);
         }
 //
