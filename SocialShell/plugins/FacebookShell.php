@@ -677,7 +677,7 @@ class FacebookShell extends AbstractPlugin
         return 'https://www.facebook.com/dialog/pagetab?app_id=' . $app_id . '&next=' . ($next_target ? $next_target : 'http://facebook.com');
     }
 
-    public static function get_likeButtonBox($url, $width = '120')
+    public static function get_likeBox($url, $width = '120')
     {
         if (!$width = (int)$width)
             $width = 120;
