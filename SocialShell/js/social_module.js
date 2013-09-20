@@ -78,7 +78,7 @@ function open_popup(url, w, h, name){
 function open_window(url, name, params){
     'use strict';
     var windowx = window.open(url, name, params);
-    if (windowx.focus)
+    if (windowx && windowx.focus)
     {
         windowx.focus();
     }

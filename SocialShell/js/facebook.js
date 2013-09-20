@@ -11,7 +11,7 @@ function fb_feed(link_text, caption, description, image, link, redirect_url, tex
         method: 'feed',
         name: link_text,
         link: link,
-        redirect_uri: redirect_url || link,
+//        redirect_uri: redirect_url || link,
         picture: image,
         source: image,
         caption: caption,

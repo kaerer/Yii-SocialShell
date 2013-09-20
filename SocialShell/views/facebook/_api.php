@@ -14,7 +14,7 @@ if ($socialModule->config->facebook_api):
                 status: true, // check login status
                 cookie: true, // enable cookies to allow the server to access the session
                 xfbml: true,  // parse XFBML
-                channelUrl: "' . $this->socialConfig->domain_url . '/channel.html"
+                channelUrl: window.location.protocol + "//" + window.location.host + "/channel.html",
             });
 
             FB.Canvas.setAutoGrow(true);
@@ -45,17 +45,15 @@ if ($socialModule->config->facebook_api):
             }, true);
         };
 
-        // Load the SDK Asynchronously
-        (function (d, debug) {
-            var js, id = "facebook-jssdk", ref = d.getElementsByTagName("script")[0];
-            if (d.getElementById(id)) {
-                return;
-            }
-            js = d.createElement("script");
-            js.id = id;
-            js.async = true;
-            js.src = "//connect.facebook.net/' . $socialModule->config->locale . '/all" + (debug ? "/debug" : "") + ".js";
-            ref.parentNode.insertBefore(js, ref);
-        }(document, ' . CJavaScript::encode(YII_DEBUG ? true : false) . ')); ///*debug*/ false
+
+        (function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/' . $socialModule->config->locale . '/all.js#xfbml=1&' . ($socialModule->config->fb_app_id ? 'appId=' . $socialModule->config->fb_app_id . '' : '') . '";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));
+
+
 ', CClientScript::POS_END);
 endif;

@@ -12,6 +12,7 @@
  * @property array $user_info Facebook user data
  *
  * Facebook type comes from vendors.facebook.Facebook
+ *
  */
 class FacebookShell extends AbstractPlugin
 {
@@ -160,6 +161,10 @@ class FacebookShell extends AbstractPlugin
             $access_token = $this->getApi() ? $this->getApi()->getAccessToken() : false;
         }
 //        $this->set_accessTokenSession($this->access_token);
+
+        if(strpos($this->config->fb_app_id, $access_token) !== false){
+            $access_token = false;
+        }
         $this->config_access_token($access_token);
         return $access_token;
     }
@@ -175,7 +180,11 @@ class FacebookShell extends AbstractPlugin
     {
         $access_token = (true === is_object($access_token)) ? $access_token->access_token : $access_token;
         if ($access_token && !$renew) {
-            if ($set_api) $this->getApi()->setAccessToken($access_token);
+            if ($set_api) {
+                $this->getApi()->setAccessToken($access_token);
+                $user_profile = $this->get_user_info();
+                if($user_profile) $this->config->fb_unique_id = $user_profile['id'];
+            }
             $result = true;
         } elseif ($renew && ($access_token = $this->get_accessTokenSession()) !== false) {
             $this->getApi()->setAccessToken($access_token);
@@ -672,11 +681,15 @@ class FacebookShell extends AbstractPlugin
     {
         if (!$width = (int)$width)
             $width = 120;
-        return '<div class="fb-like" data-href="' . self::set_protocole(trim($url)) . '" data-send="false" data-layout="button_count" data-width="' . $width . '" data-show-faces="false"></div>';
+
+        return '<div class="fb-like-box" data-href="' . self::set_protocole(trim($url)) . '" data-width="' . $width . '" data-show-faces="false" data-header="false" data-stream="false" data-show-border="false"></div>';
     }
 
     public static function set_header()
     {
+        if(headers_sent()){
+            return;
+        }
         #- ie fix for api
         header('P3P: CP="CAO PSA OUR"');
 //        header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');

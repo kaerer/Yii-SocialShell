@@ -23,12 +23,13 @@ class CallbackController extends Controller
 //        }
 
         $target = Yii::app()->session['in_callback_redirect_to'];
+        unset($_REQUEST['count']);
         if ($target) {
 //            Yii::app()->session['in_callback_started']
             $target = rtrim($target, '/') . '/?' . $this->callback_params . '=' . urlencode(http_build_query($_REQUEST, '', '&amp;'));
 
-            unset(Yii::app()->session['in_callback_started']);
-            unset(Yii::app()->session['in_callback_redirect_to']);
+//            unset(Yii::app()->session['in_callback_started']);
+//            unset(Yii::app()->session['in_callback_redirect_to']);
         } else {
 //            ' . $script_file . '/
             $target = SocialConfig::getDomain() . '/callback/?' . http_build_query($_REQUEST, '', '&amp;') . '&count=' . ++$count;
