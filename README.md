@@ -1,7 +1,7 @@
-#Yii-SocialShell
+#Yii-SocialShell - outdated...
 
 
-##Yii module for Social Platforms such as; Facebook, Twitter, Instagram
+##Yii 1.0 module for Social Platforms such as; Facebook, Twitter, Instagram
 
 **[Kurulum && Setup]**
 
